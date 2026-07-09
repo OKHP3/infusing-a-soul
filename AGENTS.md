@@ -14,7 +14,7 @@ Long-form guide on building persistent AI identity through context engineering. 
 [ TODO: Languages, frameworks, key dependencies ]
 
 ## Local Paths
-- **Windows**: `C:\Users\jamie\OKH-Local\Projects\infusing-a-soul`
+- **Windows**: `C:\Users\jamie\OKH-Local\04_GitHub_Mirrors\infusing-a-soul`
 - **Mac**: `/Volumes/OKH-Local/04_GitHub_Mirrors/infusing-a-soul`
 
 ## Key Conventions
