@@ -4,12 +4,12 @@
 
 - **Suite**: OverKill Hill P3 / Writings
 - **Repository**: `https://github.com/OKHP3/infusing-a-soul`
-- **Type**: Documentation corpus and deployable AI persona packages
+- **Type**: Documentation corpus, deployable AI persona packages, and a scheduled external-version audit
 - **Primary subject**: Designing persistent, distinct local AI identities through corpus design, persona distillation, and workspace procedures
 - **External runtime**: OpenClaw agents using the files under each persona's `workspace/` directory
 - **Current checkout status**: Documentation is active, but implementation and deployment status varies by persona
 
-The project is not an application package. This checkout contains Markdown guidance, persona configuration, research material, templates, empty corpus staging directories, and local agent skills. There are no package manifests, application entry points, CI workflows, build scripts, or test suites in the repository.
+The project is not an application package. This checkout contains Markdown guidance, persona configuration, research material, templates, empty corpus staging directories, local agent skills, and a small Python version-audit script with a scheduled GitHub Actions workflow. There are no package manifests, application entry points, build scripts, or test suites in the repository.
 
 ## Mission and vision
 
@@ -58,7 +58,7 @@ Persona-local `workspace/AGENTS.md` files apply only to their own persona direct
 
 ## Technology and runtime model
 
-- The repository format is Markdown plus small, repository-local skill assets and scripts.
+- The repository format is Markdown plus small, repository-local skill assets and scripts. The version-audit script uses Python's standard library only.
 - The documented runtime is OpenClaw, with workspace files loaded by an agent at startup and full references loaded on demand by skills.
 - The documented Glee-fully setup uses OpenClaw on GJS-LAPTOP through WSL2 and services hosted on a Mac Studio over the LAN.
 - The documented Larry setup uses OpenClaw natively on a Mac Studio and local service endpoints.
@@ -87,7 +87,7 @@ Persona-local `workspace/AGENTS.md` files apply only to their own persona direct
 
 ## Development and validation
 
-There is no repository-defined build, test, lint, or deployment command.
+There is no repository-defined build, test, lint, or deployment command. The version-audit script is the only scheduled automation and is documented in `docs/technology-inventory.md`.
 
 The documented template workflow is:
 

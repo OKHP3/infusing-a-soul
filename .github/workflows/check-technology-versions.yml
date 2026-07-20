@@ -1,0 +1,38 @@
+name: Check external technology versions
+
+on:
+  schedule:
+    - cron: "23 14 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Check authoritative release sources
+        id: check
+        continue-on-error: true
+        run: python scripts/check-technology-versions.py | tee version-audit.txt
+      - name: Upload audit report
+        uses: actions/upload-artifact@v7
+        with:
+          name: technology-version-audit
+          path: version-audit.txt
+      - name: Open or refresh tracking issue
+        if: steps.check.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh issue list --state open --search "Technology version audit" --json title --jq '.[].title' | grep -q "Technology version audit"; then
+            gh issue create \
+              --title "Technology version audit: review external updates" \
+              --body $'The scheduled technology audit found a changed or unavailable authoritative version source.\n\nReview the workflow artifact and update docs/technology-inventory.md after confirming compatibility on the target hosts. Do not treat this issue as authorization to auto-upgrade external services.'
+          fi
