@@ -22,6 +22,8 @@ This is not prompt engineering. It is persona architecture.
 
 ```
 infusing-a-soul/
+├── context/                  # Redacted, standalone thread-context extracts
+│   └── threads/              # Durable handoff artifacts, not runtime authority
 ├── souls/                    # The crypt. One directory per persona.
 │   ├── glee-fully/
 │   │   ├── workspace/        # SOUL.md, AGENTS.md, TOOLS.md (deployable)

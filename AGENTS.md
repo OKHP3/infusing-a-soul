@@ -38,6 +38,7 @@ Out of scope unless explicitly requested:
 - `docs/methodology.md`: three-layer corpus collection, distillation, and deployment model.
 - `docs/phase-2-soul-writing.md`: historical Glee-fully Phase 2 design record and word-budget rationale.
 - `article/drafts/`: article or public-writing drafts. Currently empty except for `.gitkeep`.
+- `context/threads/`: redacted, standalone extracts from external AI threads. These preserve provenance and resume context but are not current runtime authority.
 - `corpus/vernacular/`: tone and voice source material. Currently empty except for `.gitkeep`.
 - `corpus/governance/`: governance and operating-model source material. Currently empty except for `.gitkeep`.
 - `corpus/templates/`: reusable writing and prompt templates. Currently empty except for `.gitkeep`.
