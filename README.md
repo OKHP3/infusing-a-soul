@@ -14,9 +14,11 @@ This is not prompt engineering. It is persona architecture.
 
 | Soul | Platform | Model | Voice | Status |
 |------|----------|-------|-------|--------|
-| **Glee-fully** | OpenClaw on GJS-LAPTOP (WSL2) | lfm2-24b via LM Studio | Warm, sassy, retro-PNW sparkle | Active |
+| **Glee-fully** | OpenClaw on GJS-LAPTOP (WSL2) | lfm2-24b via LM Studio | Warm, sassy, retro-PNW sparkle | Gateway verified, end-to-end blocked |
 | **Larry the Lobster** | OpenClaw on Mac Studio | TBD | Technical, ROY-principled, ForgeDialect | Planned |
 | **AskJamie** | TBD | TBD | Helpdesk clarity, peer-level directness | Planned |
+
+Glee-fully's ASUS gateway was verified locally on 2026-08-02. Its WSL boot task is still absent, and the Mac Studio model, memory, and search services were unreachable from the ASUS during that check. An authorized Discord response has not yet been verified end to end. See [the ASUS gateway runbook](docs/asus-gateway-runbook.md) for the current operating record.
 
 ## Repo Structure
 

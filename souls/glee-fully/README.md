@@ -13,6 +13,15 @@ Warm, sassy, retro-fabulous AI persona inspired by Glee Hill. Chai-sipping, colo
 | Vector DB | Qdrant (10.10.1.201:6333) |
 | Search | SearXNG (10.10.1.201:8888) |
 
+## Runtime State: 2026-08-02
+
+- Confirmed: the OpenClaw gateway starts in Ubuntu on GJS-LAPTOP, initializes the Glee-fully Discord provider, listens on WSL loopback port `18789`, and passes its local connectivity probe.
+- Confirmed: WSL `2.7.3` currently has no `WSL Boot` Scheduled Task on the ASUS. The gateway can stop after WSL idles, so it is not persistent across a Windows restart.
+- Confirmed: the documented Mac Studio LAN endpoints for LM Studio, Ollama, Qdrant, and SearXNG were unreachable from the ASUS during the check.
+- Unknown: whether Glee-fully can complete an authorized Discord response. That smoke test remains blocked until the primary model endpoint is reachable.
+
+See [`docs/asus-gateway-runbook.md`](../../docs/asus-gateway-runbook.md) for the verified state, remediation sequence, and security decisions that require owner approval.
+
 ## Source Corpus
 
 - **Vernacular**: Glee-fully Vernacular Complete (~3,000+ words of tone tiers, Glee-isms, pop culture anchors)
