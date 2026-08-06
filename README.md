@@ -22,6 +22,8 @@ This is not prompt engineering. It is persona architecture.
 
 ```
 infusing-a-soul/
+├── .agents/                  # Active repository-local Agent Skills and prompts
+├── .github/                  # Scheduled repository automation
 ├── context/                  # Redacted, standalone thread-context extracts
 │   └── threads/              # Durable handoff artifacts, not runtime authority
 ├── souls/                    # The crypt. One directory per persona.
@@ -38,7 +40,7 @@ infusing-a-soul/
 │   └── templates/            # FrankenTemplates, PromptChain, Pulsebooks
 ├── docs/                     # Build journal and methodology
 ├── article/                  # LinkedIn/blog content drafts
-├── .agents/skills/           # Active repository-local Agent Skills and evaluations
+├── scripts/                  # Small utilities used by repository automation
 └── skills/                   # Promotion mirror for selected portable skills
 ```
 
