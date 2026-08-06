@@ -46,7 +46,8 @@ Out of scope unless explicitly requested:
 - `souls/glee-fully/`: authored Glee-fully persona package with deployable workspace files. Its references and skills directories are currently placeholders.
 - `souls/larry-the-lobster/`: authored Larry persona package with deployable workspace files and a research corpus.
 - `souls/askjamie/`: planned persona. Its workspace is not yet authored.
-- `.agents/skills/`: repository-local skills for finding skills, Notion capture routing, skill cataloging, and skill creation.
+- `.agents/skills/`: active repository-local skills, references, evaluations, and validation helpers.
+- `skills/`: selected portable skill promotion mirrors. This is separate from the active `.agents/skills/` surface and requires provenance review before removal or replacement.
 - `CLAUDE.md`: short pointer to this root guide.
 
 Each persona's `workspace/` files have a narrower content role:

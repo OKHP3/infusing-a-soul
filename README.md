@@ -37,8 +37,17 @@ infusing-a-soul/
 │   ├── governance/           # Cathedral Codex, Canon, entity models
 │   └── templates/            # FrankenTemplates, PromptChain, Pulsebooks
 ├── docs/                     # Build journal and methodology
-└── article/                  # LinkedIn/blog content drafts
+├── article/                  # LinkedIn/blog content drafts
+├── .agents/skills/           # Active repository-local Agent Skills and evaluations
+└── skills/                   # Promotion mirror for selected portable skills
 ```
+
+The persona corpus and the repository-local skill library are related but
+separate concerns. `.agents/skills/` is the active skill surface used while
+working in this repository. The top-level `skills/` directory is reserved for
+portable promotion mirrors and is not part of the persona runtime. A mirror
+must not be removed or overwritten without confirming its canonical source and
+promotion purpose.
 
 ## The Method
 
