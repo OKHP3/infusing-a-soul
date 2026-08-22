@@ -12,3 +12,4 @@ separate review confirms that it is current, supported, and safe to operationali
 
 - [OpenClaw Persona and Skill Architecture](openclaw-persona-skill-architecture.md): Perplexity capture covering the Larry/Glee-fully dual-instance proposal, `SOUL.md` and `SKILL.md` layering, rollout sequence, handoff rules, and capture routing.
 - [Local-First AI Context Archive Pipeline](local-first-ai-context-pipeline.md): Claude capture covering local extraction, review, GitHub authority, historical context, and report-only Notion ingestion.
+- [ASUS Gateway Runtime Closeout](2026-08-02-asus-gateway-runtime-closeout.md): Codex continuation record covering the verified Glee-fully gateway state, documentation updates, validation, present blockers, and exact next actions.
