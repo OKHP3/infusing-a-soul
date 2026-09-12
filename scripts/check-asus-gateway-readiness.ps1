@@ -1,9 +1,10 @@
 [CmdletBinding()]
 param(
-    [string]$Distro = "Ubuntu",
-    [ValidatePattern("^[a-zA-Z0-9@._-]+\.service$")]
-    [string]$GatewayService = "openclaw-gateway.service",
-    [string]$WslBootTask = "WSL Boot",
+    [string]$CompanionProcessName = "openclaw.tray.winui",
+    [int]$GatewayPort = 18789,
+    [string]$DiagnosticsLogPath = (Join-Path $env:LOCALAPPDATA "OpenClawTray\Logs\diagnostics.jsonl"),
+    [int]$DiagnosticsLogMaxAgeHours = 24,
+    [string]$StartupNamePattern = "*OpenClaw*",
     [string[]]$RequiredEndpoints = @(
         "10.10.1.201:1234",
         "10.10.1.201:11434",
@@ -11,6 +12,13 @@ param(
         "10.10.1.201:8888"
     )
 )
+
+# Rewritten 2026-09-12 for the native OpenClaw Windows Companion architecture.
+# The gateway used to run inside a WSL2/Ubuntu distro; it now runs as a native
+# Windows service managed by the Companion app. This script replaces the old
+# WSL-registration / systemd-service checks with checks that match that
+# architecture. It is read-only: it does not open, read, or print any
+# credential, token, or config value, and it changes nothing.
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -32,91 +40,75 @@ function Add-Check {
         })
 }
 
-function Invoke-WslCheck {
-    param([string]$Script)
-
-    $output = $Script | & wsl.exe -d $Distro -- bash -s 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        throw ($output | Out-String)
-    }
-
-    return $output
-}
-
 try {
-    $distroRows = & wsl.exe -l -v 2>&1
-    $distroText = ($distroRows | Out-String) -replace "`0", ""
-    if ($LASTEXITCODE -eq 0 -and $distroText -match "(?m)^\s*\*?\s*$([regex]::Escape($Distro))\s+") {
-        Add-Check -Name "WSL distribution" -Status "PASS" -Detail "$Distro is registered."
+    $proc = Get-Process -Name $CompanionProcessName -ErrorAction SilentlyContinue
+    if ($proc) {
+        Add-Check -Name "Companion process" -Status "PASS" -Detail "'$CompanionProcessName' is running (PID $($proc[0].Id))."
     }
     else {
-        Add-Check -Name "WSL distribution" -Status "FAIL" -Detail "$Distro is not registered or could not be listed."
+        Add-Check -Name "Companion process" -Status "FAIL" -Detail "'$CompanionProcessName' is not running. Launch OpenClaw Windows Companion."
     }
 }
 catch {
-    Add-Check -Name "WSL distribution" -Status "FAIL" -Detail $_.Exception.Message.Trim()
+    Add-Check -Name "Companion process" -Status "WARN" -Detail $_.Exception.Message.Trim()
 }
 
 try {
-    $task = Get-ScheduledTask -TaskName $WslBootTask -ErrorAction SilentlyContinue
-    if ($null -eq $task) {
-        Add-Check -Name "WSL boot task" -Status "FAIL" -Detail "Scheduled Task '$WslBootTask' is absent. The WSL gateway can idle-stop after its last client exits."
+    $gatewayUp = Test-NetConnection -ComputerName "127.0.0.1" -Port $GatewayPort -InformationLevel Quiet -WarningAction SilentlyContinue
+    if ($gatewayUp) {
+        Add-Check -Name "Gateway listener" -Status "PASS" -Detail "127.0.0.1:$GatewayPort is accepting connections."
     }
     else {
-        Add-Check -Name "WSL boot task" -Status "PASS" -Detail "Scheduled Task '$WslBootTask' is present with state '$($task.State)'."
+        Add-Check -Name "Gateway listener" -Status "FAIL" -Detail "127.0.0.1:$GatewayPort is not accepting connections. Check the Companion app's Diagnostics page."
     }
 }
 catch {
-    Add-Check -Name "WSL boot task" -Status "WARN" -Detail "Could not inspect Scheduled Task '$WslBootTask': $($_.Exception.Message.Trim())"
+    Add-Check -Name "Gateway listener" -Status "WARN" -Detail $_.Exception.Message.Trim()
 }
 
 try {
-    $wslGatewayCheck = @'
-printf 'dbus_launch='; command -v dbus-launch || true
-printf 'linger='; loginctl show-user "$(whoami)" -p Linger --value 2>/dev/null || true
-printf 'systemd='; grep -E '^systemd\s*=\s*true' /etc/wsl.conf 2>/dev/null || true
-printf 'service_enabled='; systemctl --user is-enabled __GATEWAY_SERVICE__ 2>/dev/null || true
-printf 'service_active='; systemctl --user is-active __GATEWAY_SERVICE__ 2>/dev/null || true
-listener='not-listening'
-for attempt in $(seq 1 15); do
-  if ss -ltnH 2>/dev/null | grep -q ':18789'; then
-    listener='LISTEN'
-    break
-  fi
-  sleep 1
-done
-printf 'listener=%s\n' "$listener"
-'@
-    $wslGatewayCheck = $wslGatewayCheck.Replace("__GATEWAY_SERVICE__", $GatewayService)
-    $prerequisites = Invoke-WslCheck -Script $wslGatewayCheck
-
-    $prerequisiteText = $prerequisites | Out-String
-    if ($prerequisiteText -match "dbus_launch=/" -and $prerequisiteText -match "linger=yes" -and $prerequisiteText -match "systemd=systemd=true") {
-        Add-Check -Name "WSL prerequisites" -Status "PASS" -Detail "systemd, user lingering, and dbus-launch are available."
+    if (Test-Path -LiteralPath $DiagnosticsLogPath) {
+        $ageHours = ((Get-Date) - (Get-Item -LiteralPath $DiagnosticsLogPath).LastWriteTime).TotalHours
+        if ($ageHours -le $DiagnosticsLogMaxAgeHours) {
+            Add-Check -Name "Diagnostics log" -Status "PASS" -Detail "Found, last written $([math]::Round($ageHours, 1))h ago."
+        }
+        else {
+            Add-Check -Name "Diagnostics log" -Status "WARN" -Detail "Found, but last written $([math]::Round($ageHours, 1))h ago (older than $DiagnosticsLogMaxAgeHours h). Companion may not have run recently."
+        }
     }
     else {
-        Add-Check -Name "WSL prerequisites" -Status "FAIL" -Detail "systemd, user lingering, or dbus-launch is missing."
-    }
-
-    if ($prerequisiteText -match "service_enabled=enabled") {
-        Add-Check -Name "OpenClaw service" -Status "PASS" -Detail "$GatewayService is enabled in the WSL user session."
-    }
-    else {
-        Add-Check -Name "OpenClaw service" -Status "FAIL" -Detail "$GatewayService is not enabled."
-    }
-
-    if ($prerequisiteText -match "service_active=active" -and $prerequisiteText -match "listener=LISTEN") {
-        Add-Check -Name "Gateway listener" -Status "PASS" -Detail "The loopback gateway listener is active on port 18789 inside WSL."
-    }
-    elseif ($prerequisiteText -match "service_active=active") {
-        Add-Check -Name "Gateway listener" -Status "FAIL" -Detail "The service is active but port 18789 is not listening. Inspect the OpenClaw service journal."
-    }
-    else {
-        Add-Check -Name "Gateway listener" -Status "FAIL" -Detail "The service is not active."
+        Add-Check -Name "Diagnostics log" -Status "FAIL" -Detail "Not found at '$DiagnosticsLogPath'. Adjust -DiagnosticsLogPath if Companion installs to a different location."
     }
 }
 catch {
-    Add-Check -Name "WSL gateway checks" -Status "FAIL" -Detail $_.Exception.Message.Trim()
+    Add-Check -Name "Diagnostics log" -Status "WARN" -Detail $_.Exception.Message.Trim()
+}
+
+try {
+    $runKeyHit = $false
+    $runKeyPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+    if (Test-Path $runKeyPath) {
+        $runKeyHit = [bool](Get-Item -Path $runKeyPath | Select-Object -ExpandProperty Property | Where-Object { $_ -like $StartupNamePattern })
+    }
+
+    $startupFolder = [Environment]::GetFolderPath("Startup")
+    $startupShortcutHit = [bool](Get-ChildItem -Path $startupFolder -Filter $StartupNamePattern -ErrorAction SilentlyContinue)
+
+    $scheduledTaskHit = [bool](Get-ScheduledTask -TaskName $StartupNamePattern -ErrorAction SilentlyContinue)
+
+    if ($runKeyHit -or $startupShortcutHit -or $scheduledTaskHit) {
+        $via = @()
+        if ($runKeyHit) { $via += "Run key" }
+        if ($startupShortcutHit) { $via += "Startup folder" }
+        if ($scheduledTaskHit) { $via += "Scheduled Task" }
+        Add-Check -Name "Startup persistence" -Status "PASS" -Detail "Registered via: $($via -join ', ')."
+    }
+    else {
+        Add-Check -Name "Startup persistence" -Status "WARN" -Detail "No match for '$StartupNamePattern' in the Run key, Startup folder, or Task Scheduler. Companion may use a different mechanism than this check knows about; confirm manually before treating this as a real failure."
+    }
+}
+catch {
+    Add-Check -Name "Startup persistence" -Status "WARN" -Detail $_.Exception.Message.Trim()
 }
 
 foreach ($endpoint in $RequiredEndpoints) {
