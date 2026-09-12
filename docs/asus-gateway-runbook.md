@@ -78,6 +78,44 @@ From the Mac Studio, an authorized operator must verify that the following docum
 
 Once reachable, retry the `add-model-provider` chat request documented above (or configure the provider directly), and re-run gateway doctor. A successful model endpoint check is the minimum prerequisite for an end-to-end Discord smoke test.
 
+## Mac Studio Recovery — Completed 2026-09-12
+
+An authorized operator (Claude, working directly on the Mac Studio via screen control, with Jamie's approval to execute needed changes) ran the recovery pass this section asks for. Verified end to end with live HTTP checks made from a separate network path to the Mac Studio's LAN address, not just from the Mac itself.
+
+**Mac Studio's current LAN address: `10.10.1.201`** (Wi-Fi network `HillHouse`, subnet `255.255.255.0`, router `10.10.1.254`). This is almost certainly what had drifted and broken Glee-fully's old `mac-studio.local` / cached-IP assumptions — confirm `mac-studio.local` still resolves correctly from GJS-LAPTOP, and if not, use the raw IP above until mDNS is confirmed reliable on the HillHouse network.
+
+| Service | Port | Result before | Fix applied | Result after (verified by live curl from off-host) |
+| --- | ---: | --- | --- | --- |
+| LM Studio | 1234 | Bound to `127.0.0.1` only ("Serve on Local Network" was OFF) | Enabled Serve on Local Network in LM Studio's server settings | Reachable at `http://10.10.1.201:1234` — HTTP 200 |
+| Open WebUI | 3000 | Docker port binding was `127.0.0.1:3000->8080` (explicit loopback-only bind) | Recreated the `open-webui` container from the same image (`ghcr.io/open-webui/open-webui:v0.11.0`) and the same named volume (`open-webui:/app/backend/data`, so all data/users/chats persisted), this time with an all-interfaces port publish | Reachable at `http://10.10.1.201:3000` — HTTP 200 |
+| Ollama | 11434 | Bound to `127.0.0.1` only | **Not fixed — needs Jamie.** No Ollama.app is installed; it runs headless via `brew services`. See "Ollama LAN exposure" below. | Still unreachable — HTTP connect failure from off-host |
+| Qdrant | 6333 (+6334 gRPC) | Docker port binding was `127.0.0.1` only on both ports. **Also found and fixed a stale bind mount**: the running container's storage bind pointed at `/Volumes/DKH-Local/07_Local_LLMs/qdrant`, a path that no longer exists on this Mac (the drive is now named `OKH-Local`). The container had been running since before the rename and never lost its open file handle, so this was invisible until a restart was attempted. | Recreated the container against the correct current path `/Volumes/OKH-Local/07_Local_LLMs/qdrant` (same data — collections and raft state — confirmed intact), with all-interfaces port publish on 6333 and 6334 | Reachable at `http://10.10.1.201:6333` — HTTP 200 |
+| SearXNG | 8888 | Docker port binding was `127.0.0.1:8888->8080` | Recreated the `searxng` container from the same image with the same two host bind mounts (`/Users/okh/searxng/config`, `/Users/okh/searxng/data`), all-interfaces port publish | Reachable at `http://10.10.1.201:8888` — HTTP 200 |
+| OpenClaw Gateway | 18789 | Not checked in the 2026-08-02 or earlier 2026-09-12 passes | Investigated but **not fixed — needs Jamie**. See "OpenClaw Gateway LAN exposure" below. | Still unreachable — HTTP connect failure from off-host, despite the Control UI's own "Gateway Host" card cosmetically showing `10.10.1.201:18789` (that field is just the host's self-reported LAN address for display, not proof the gateway is listening on it) |
+
+### Ollama LAN exposure — needs Jamie
+
+Ollama on this Mac was installed and is managed through `brew services` (per `mac-studio-local-ai-workbench/mac-studio-setup/LOCAL_WORKBENCH_STATUS.md`), with no Ollama.app / menu-bar presence to toggle network exposure from a GUI, and no terminal-typing access available to the automation that did the rest of this pass. Ollama defaults to binding `127.0.0.1:11434` unless `OLLAMA_HOST` says otherwise. From a real Terminal on the Mac Studio:
+
+```zsh
+launchctl setenv OLLAMA_HOST "0.0.0.0"
+brew services restart ollama
+```
+
+Then re-verify with `curl http://10.10.1.201:11434/api/tags` from another machine on HillHouse. If `launchctl setenv` doesn't survive a reboot in practice, the more durable fix is adding `Environment="OLLAMA_HOST=0.0.0.0"` to the Homebrew-managed launchd plist for the ollama service (`brew services info ollama --json` will show its plist path) and restarting the service.
+
+### OpenClaw Gateway LAN exposure — needs Jamie
+
+This is the important one for the SHOAL ("local AI server for Windows/iPhone/iPad") goal: the Mac Studio's own OpenClaw Gateway is listening on `127.0.0.1:18789` only, confirmed by a failed connection from off-host while every other service above succeeded. OpenClaw Control's own Gateway settings page (Connections → Gateway) only exposes the *client-side* connect target (`ws://127.0.0.1:18789`, i.e. where this Control UI itself connects to, since it runs on the same Mac) — it has no visible toggle for the gateway's own listen/bind address. That setting most likely lives in the gateway's own config (`openclaw.json` or equivalent, referenced elsewhere in this repo's security-decisions list) as something like a `gateway.host` / `gateway.bindHost` key, or an environment variable read at gateway startup. This needs Jamie (or a session with real terminal access to the Mac Studio) to locate that key, set it to `0.0.0.0`, and restart the gateway — then re-verify with a WebSocket/HTTP check against `10.10.1.201:18789` from another device on HillHouse.
+
+Also worth noting while in there: Devices (OpenClaw Control → Devices) currently lists only this Mac Studio itself and its own `openclaw-control-ui` — no Windows, iPhone, or iPad device has been paired to this gateway yet. Once the bind address is fixed, GJS-LAPTOP (or a phone/tablet OpenClaw client) still needs to actually pair to it — that's a separate, deliberate step on each client device, not something that follows automatically from the gateway being reachable.
+
+### Architecture note for the Windows side
+
+Per this runbook's own "Thread Closeout (2026-09-12)" section above: GJS-LAPTOP's OpenClaw Companion runs its **own** local gateway (`ws://127.0.0.1:18789`, internal to the Companion app's managed WSL layer) — it is not, today, a client of this Mac Studio's gateway. That means the fastest path to "Glee-fully talks to the Mac's models" is almost certainly **not** pairing GJS-LAPTOP to the Mac's Gateway at all, but adding LM Studio (and/or Ollama, once its LAN exposure is fixed) as a model provider inside GJS-LAPTOP's own OpenClaw, pointed at `http://10.10.1.201:1234/v1` (LM Studio) — exactly the `add-model-provider` attempt blocker 1 already describes, which is a Windows-side problem (broken `gpt-5.6-sol` model reference blocking the agent chat) unrelated to anything fixed in this update. The Mac-side reachability blocker that attempt was waiting on is now cleared for LM Studio; Ollama needs the fix above first if Glee-fully is meant to use it too.
+
+If the actual intent is closer to the SHOAL vision — one shared Mac-hosted OpenClaw Gateway that GJS-LAPTOP, an iPhone, and an iPad all pair into as clients, rather than each device running its own local OpenClaw — then the Gateway LAN exposure fix above is the blocking item, and device pairing from each client is the step after that.
+
 ## Security decisions before broadening access
 
 The active configuration needs owner-approved remediation before the Discord bot serves anyone beyond its trusted owner. Re-verify each of these against the new native install; only item 4 has been confirmed since 2026-08-02, via `openclaw doctor` on 2026-09-12 (see the findings table above):
