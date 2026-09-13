@@ -88,12 +88,12 @@ An authorized operator (Claude, working directly on the Mac Studio via screen co
 | --- | ---: | --- | --- | --- |
 | LM Studio | 1234 | Bound to `127.0.0.1` only ("Serve on Local Network" was OFF) | Enabled Serve on Local Network in LM Studio's server settings | Reachable at `http://10.10.1.201:1234` — HTTP 200 |
 | Open WebUI | 3000 | Docker port binding was `127.0.0.1:3000->8080` (explicit loopback-only bind) | Recreated the `open-webui` container from the same image (`ghcr.io/open-webui/open-webui:v0.11.0`) and the same named volume (`open-webui:/app/backend/data`, so all data/users/chats persisted), this time with an all-interfaces port publish | Reachable at `http://10.10.1.201:3000` — HTTP 200 |
-| Ollama | 11434 | Bound to `127.0.0.1` only | **Not fixed — needs Jamie.** No Ollama.app is installed; it runs headless via `brew services`. See "Ollama LAN exposure" below. | Still unreachable — HTTP connect failure from off-host |
+| Ollama | 11434 | Bound to `127.0.0.1` only | **Fixed by Jamie, 2026-09-13**, via `launchctl setenv OLLAMA_HOST "0.0.0.0"` + `brew services restart ollama` run directly in Terminal. See "Ollama LAN exposure" below for a follow-up item this surfaced. | Reachable at `http://10.10.1.201:11434` — HTTP 200 |
 | Qdrant | 6333 (+6334 gRPC) | Docker port binding was `127.0.0.1` only on both ports. **Also found and fixed a stale bind mount**: the running container's storage bind pointed at `/Volumes/DKH-Local/07_Local_LLMs/qdrant`, a path that no longer exists on this Mac (the drive is now named `OKH-Local`). The container had been running since before the rename and never lost its open file handle, so this was invisible until a restart was attempted. | Recreated the container against the correct current path `/Volumes/OKH-Local/07_Local_LLMs/qdrant` (same data — collections and raft state — confirmed intact), with all-interfaces port publish on 6333 and 6334 | Reachable at `http://10.10.1.201:6333` — HTTP 200 |
 | SearXNG | 8888 | Docker port binding was `127.0.0.1:8888->8080` | Recreated the `searxng` container from the same image with the same two host bind mounts (`/Users/okh/searxng/config`, `/Users/okh/searxng/data`), all-interfaces port publish | Reachable at `http://10.10.1.201:8888` — HTTP 200 |
 | OpenClaw Gateway | 18789 | Not checked in the 2026-08-02 or earlier 2026-09-12 passes | Investigated but **not fixed — needs Jamie**. See "OpenClaw Gateway LAN exposure" below. | Still unreachable — HTTP connect failure from off-host, despite the Control UI's own "Gateway Host" card cosmetically showing `10.10.1.201:18789` (that field is just the host's self-reported LAN address for display, not proof the gateway is listening on it) |
 
-### Ollama LAN exposure — needs Jamie
+### Ollama LAN exposure — fixed 2026-09-13
 
 Ollama on this Mac was installed and is managed through `brew services` (per `mac-studio-local-ai-workbench/mac-studio-setup/LOCAL_WORKBENCH_STATUS.md`), with no Ollama.app / menu-bar presence to toggle network exposure from a GUI, and no terminal-typing access available to the automation that did the rest of this pass. Ollama defaults to binding `127.0.0.1:11434` unless `OLLAMA_HOST` says otherwise. From a real Terminal on the Mac Studio:
 
@@ -104,9 +104,70 @@ brew services restart ollama
 
 Then re-verify with `curl http://10.10.1.201:11434/api/tags` from another machine on HillHouse. If `launchctl setenv` doesn't survive a reboot in practice, the more durable fix is adding `Environment="OLLAMA_HOST=0.0.0.0"` to the Homebrew-managed launchd plist for the ollama service (`brew services info ollama --json` will show its plist path) and restarting the service.
 
+**Update 2026-09-13:** Jamie ran the two commands above directly in Terminal on the Mac Studio. Both succeeded (`Successfully stopped ollama` / `Successfully started ollama`), and a live off-host curl confirms `http://10.10.1.201:11434/api/tags` now returns HTTP 200 — Ollama is reachable on the LAN.
+
+**Follow-up — resolved 2026-09-13:** confirmed exactly as suspected. `launchctl getenv OLLAMA_MODELS` came back empty right after the `OLLAMA_HOST` fix, and `ollama list` showed zero models — the `brew services` launchd daemon wasn't inheriting `OLLAMA_MODELS` the way a Terminal session does. Fix: `launchctl setenv OLLAMA_MODELS "/Volumes/OKH-Local/07_Local_LLMs/ollama/models"` followed by another `brew services restart ollama`. `ollama list` now shows all 10 models (ministral-3:8b, command-r7b, llama3.2:3b, nomic-embed-text, llama3.1:8b, mistral-small3.1:24b, codestral:22b, gemma3:27b, gemma3:12b, phi4:14b), and a live off-host curl to `http://10.10.1.201:11434/api/tags` confirms the full model list is visible on the LAN, not just locally. Ollama is fully resolved — reachable and populated.
+
 ### OpenClaw Gateway LAN exposure — needs Jamie
 
 This is the important one for the SHOAL ("local AI server for Windows/iPhone/iPad") goal: the Mac Studio's own OpenClaw Gateway is listening on `127.0.0.1:18789` only, confirmed by a failed connection from off-host while every other service above succeeded. OpenClaw Control's own Gateway settings page (Connections → Gateway) only exposes the *client-side* connect target (`ws://127.0.0.1:18789`, i.e. where this Control UI itself connects to, since it runs on the same Mac) — it has no visible toggle for the gateway's own listen/bind address. That setting most likely lives in the gateway's own config (`openclaw.json` or equivalent, referenced elsewhere in this repo's security-decisions list) as something like a `gateway.host` / `gateway.bindHost` key, or an environment variable read at gateway startup. This needs Jamie (or a session with real terminal access to the Mac Studio) to locate that key, set it to `0.0.0.0`, and restart the gateway — then re-verify with a WebSocket/HTTP check against `10.10.1.201:18789` from another device on HillHouse.
+
+#### Locate-and-fix playbook (run in a real Terminal on the Mac Studio)
+
+This is the same class of problem Ollama had, one layer deeper: nothing in the GUI exposes the setting, so this is a locate-then-fix job rather than a single command. Six steps:
+
+**1. Try the OpenClaw CLI first.** It is already used elsewhere in this project for `config get`, `doctor`, and `secrets` — try it before touching any file directly:
+
+```zsh
+openclaw config list
+openclaw config get gateway
+```
+
+If that reports a `gateway.host` / `gateway.bindHost` / `gateway.listen` key (name TBD until this is actually run), the fast path is:
+
+```zsh
+openclaw config set gateway.host 0.0.0.0
+```
+
+(swap in whatever key name `config get gateway` actually reports)
+
+**2. If the CLI doesn't expose it, find the raw config file.** `~/.openclaw/` is the confirmed convention — it's the deployment target for GJS-LAPTOP's workspace files and a folder that also exists on this Mac. `openclaw.json` is confirmed to hold a `gateway.auth.token` key on the Windows side (see the plaintext-secret item elsewhere in this runbook), so the Mac's own copy almost certainly has a parallel `gateway.*` block:
+
+```zsh
+find ~/.openclaw -maxdepth 4 -type f \( -iname "*.json" -o -iname "*.yaml" -o -iname "*.yml" -o -iname "*.toml" \) 2>/dev/null
+find ~/Library/Application\ Support -maxdepth 2 -iname "*openclaw*" 2>/dev/null
+```
+
+**3. Grep whatever config file step 2 finds, for the bind setting:**
+
+```zsh
+grep -n "gateway" ~/.openclaw/openclaw.json
+grep -in "host\|bind\|listen\|18789\|127.0.0.1\|0.0.0.0" ~/.openclaw/openclaw.json
+```
+
+(adjust the path once step 2 confirms where the real file lives)
+
+**4. Confirm how the gateway process is managed, so you know how to restart it after the edit:**
+
+```zsh
+ps aux | grep -i openclaw
+launchctl list | grep -i openclaw
+brew services list | grep -i openclaw
+```
+
+This tells you whether the gateway is a child process of the OpenClaw Control app itself (most likely, since Control is Electron/PWA-based) versus a standalone `brew services` or `launchd` daemon the way Ollama is.
+
+**5. Make the edit and restart:**
+- CLI-settable key: `openclaw config set <key> 0.0.0.0`, then quit and reopen OpenClaw Control (or `openclaw gateway restart` if that subcommand exists).
+- Raw file edit: back up first (`cp openclaw.json openclaw.json.bak`), edit the value with a script rather than by hand to avoid breaking JSON formatting, then restart per whatever step 4 revealed.
+
+**6. Verify from off the Mac:**
+
+```zsh
+curl -v --max-time 5 http://10.10.1.201:18789
+```
+
+Any response, even an error page or a WebSocket-upgrade rejection, beats a connection failure. HTTP `000` / connection refused still means loopback-only.
 
 Also worth noting while in there: Devices (OpenClaw Control → Devices) currently lists only this Mac Studio itself and its own `openclaw-control-ui` — no Windows, iPhone, or iPad device has been paired to this gateway yet. Once the bind address is fixed, GJS-LAPTOP (or a phone/tablet OpenClaw client) still needs to actually pair to it — that's a separate, deliberate step on each client device, not something that follows automatically from the gateway being reachable.
 
