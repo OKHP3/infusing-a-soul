@@ -19,8 +19,8 @@ This update was produced during a 2026-09-12 session that began as a WSL trouble
 
 ## Current blockers
 
-1. **Model provider is unconfigured and the in-app configuration path is currently blocked.** OpenClaw Companion ships a built-in skill, `add-model-provider` ("Add and live-prove a model provider with non-interactive config one-liners, without exposing credentials"), that is meant to be invoked by asking the OpenClaw agent itself in the Companion **Chat** tab, not through a settings form. A chat message was sent asking it to add an `lmstudio` provider (`baseUrl: http://mac-studio.local:1234/v1`, `apiKey: "lmstudio"` — this is LM Studio's own documented placeholder for its local server, not a real secret) and to live-prove reachability before changing anything. The request came back **"Agent error"** with no response. The chat panel showed a model tag of `gpt-5.6-sol` on the attempted turn, meaning some provider is already referenced in the agent's config, but it is not answering. This is a chicken-and-egg problem: the safe, credential-free configuration path runs through the agent's own chat, and the agent cannot process that request while its current model is broken. **This needs Jamie to look at directly** — either fix or replace whatever `gpt-5.6-sol` is pointing at (Gateway > Connection or the underlying `openclaw.json`), or use `openclaw doctor` from a real terminal, before the `add-model-provider` chat-based path can be retried. No credential was written or exposed at any point; the attempted config never got far enough to touch a key.
-2. Mac Studio LAN endpoint reachability (LM Studio 1234, Ollama 11434, Qdrant 6333, SearXNG 8888) is **still unverified**. The chat-based reachability test above never ran because the agent errored before it could execute. This has not been re-checked since the 2026-08-02 note that these were unreachable from the ASUS.
+1. **Model provider is unconfigured — a clean slate, not a broken reference.** The overnight `add-model-provider` chat attempt errored, and the model tag `gpt-5.6-sol` shown in the Companion chat panel looked like an existing-but-broken provider reference. It wasn't. `openclaw config get agents` on 2026-09-12 (from a real shell, after `openclaw doctor` confirmed lingering was already enabled from the prior run, proving it's the same persistent environment) shows `agents.defaults` has no `model` key at all and `agents.entries.main` is an empty object. `openclaw config get models` confirms no provider is registered anywhere. This is a clean, unconfigured slate, not a broken existing reference to fix. `gpt-5.6-sol` was most likely a placeholder/fallback label the UI shows when nothing real is wired up.
+2. **Mac Studio LAN reachability — likely improved on the Mac side, not yet re-verified from GJS-LAPTOP.** From the gateway's own WSL shell (`curl -v http://10.10.1.201:1234/v1/models`), LM Studio's port 1234 came back **"Connection refused,"** not a timeout, from source `172.31.63.71` (the WSL instance's own NAT address). Refused, rather than timed out, meant the packet reached the Mac Studio's network stack fine and nothing was listening on port 1234 — a Mac-side service state, not a WSL-networking or LAN-routing problem. Jamie opened a separate Claude session directly on the Mac Studio (`cse_01KXJjW1ADrndwxjPpBRgWo1`) to investigate that side, and per "Mac Studio Recovery — Completed 2026-09-12" below, LM Studio's "Serve on Local Network" toggle was found off and has since been enabled, with reachability confirmed by a live curl from off-host. **This has not yet been re-confirmed from GJS-LAPTOP itself** — re-run `curl -v http://10.10.1.201:1234/v1/models` from the WSL shell before treating it as resolved and before attempting the `add-model-provider` config. Ollama (11434) and the Mac's own OpenClaw Gateway (18789) remain confirmed unreachable per that same section and still need Jamie's hands-on fix on the Mac; Qdrant (6333) and SearXNG (8888) are confirmed fixed on the Mac side but likewise unverified from GJS-LAPTOP specifically.
 3. OpenClaw's security audit item from 2026-08-02 (browser/web tools enabled without a sandbox on a model that could serve untrusted input) has not been re-evaluated against the new native install. Treat it as still open until reviewed.
 
 ## `openclaw doctor` findings (2026-09-12)
@@ -43,7 +43,7 @@ Jamie ran `openclaw doctor` from a real terminal after waking up (Claude cannot 
 
 Doctor completed cleanly after these. Its own recommendation to also run `openclaw security audit --deep` has not been done yet.
 
-**Next step to actually unblock the model provider:** with a live shell now open (`openclaw@GJs-Laptop:~$`), run `openclaw config get agents.defaults.model` to see what `gpt-5.6-sol` resolves to and why it's erroring, rather than continuing to fight the Companion GUI.
+**Next step to actually unblock the model provider:** with LM Studio reachability re-confirmed from GJS-LAPTOP (see "Current blockers" item 2), register it as a model provider from a live shell (`openclaw@GJs-Laptop:~$`) via `openclaw config set models ...` pointed at `http://10.10.1.201:1234/v1` with `apiKey: "lmstudio"` (LM Studio's own non-secret placeholder), rather than continuing to fight the Companion GUI's chat-based `add-model-provider` path.
 
 **Operational note:** clicking "Run gateway doctor" from the Companion Diagnostics page more than once opens a new interactive terminal each time, and each one independently blocks on the same Yes/No prompts. Multiple stuck PowerShell windows asking the identical question is expected if doctor was launched more than once; answer one, then close the rest rather than answering each separately.
 
@@ -65,18 +65,9 @@ It was rewritten on 2026-09-12 for the native Companion-app architecture. It rep
 
 The script exits nonzero when any required check fails. It is a readiness check, not a repair tool. The Companion app's own **Diagnostics** page (Connected/Disconnected banner, "Run gateway doctor", "Create diagnostics bundle") is the other source of truth for gateway health, and is the better tool for digging into *why* a check failed.
 
-## Required Mac Studio recovery
+## Mac Studio recovery status
 
-From the Mac Studio, an authorized operator must verify that the following documented services listen on the LAN address expected by Glee-fully and are permitted through the host firewall:
-
-| Service | Port | Glee-fully role |
-| --- | ---: | --- |
-| LM Studio | 1234 | Primary model inference |
-| Ollama | 11434 | Secondary persona model |
-| Qdrant | 6333 | Semantic-memory store |
-| SearXNG | 8888 | Current-information search |
-
-Once reachable, retry the `add-model-provider` chat request documented above (or configure the provider directly), and re-run gateway doctor. A successful model endpoint check is the minimum prerequisite for an end-to-end Discord smoke test.
+The Mac Studio side of this runbook used to list four required services to verify. That verification pass has now been run — see "Mac Studio Recovery — Completed 2026-09-12" immediately below for the full before/after table, what was fixed, and what still needs Jamie. In short: LM Studio, Qdrant, and SearXNG are now confirmed reachable from off-host; Ollama and the Mac's own OpenClaw Gateway are still loopback-only and need a real terminal session on the Mac. Re-run `.\scripts\check-asus-gateway-readiness.ps1` from GJS-LAPTOP (or the manual `curl -v` checks in "Current blockers" above) to confirm the Windows side sees the same result before treating any of this as done end to end.
 
 ## Mac Studio Recovery — Completed 2026-09-12
 
@@ -138,4 +129,4 @@ Use these labels consistently in future repository and Notion updates:
 - `runtime unverified`: the deployment is documented but lacks a dated successful host and dependency check.
 - `active`: the gateway, primary model endpoint, and authorized channel smoke test all passed on the same dated check.
 
-The verified status on 2026-09-12 is: `authored / runtime unverified`. The gateway itself is confirmed reachable for the first time on this host (an improvement over 2026-08-02, where it depended on a since-removed WSL workaround), but the primary model endpoint and channel smoke test remain unverified, and the chat-based provider configuration path is currently blocked pending Jamie's review of the existing broken model reference.
+The verified status on 2026-09-12 is: `authored / runtime unverified`. The gateway itself is confirmed reachable for the first time on this host (an improvement over 2026-08-02, where it depended on a since-removed WSL workaround). Three of the four Mac Studio services (LM Studio, Qdrant, SearXNG) are now confirmed reachable from off-host, though not yet re-checked specifically from GJS-LAPTOP; Ollama and the Mac's own OpenClaw Gateway remain loopback-only. The primary model endpoint is still unconfigured on the Windows side and the end-to-end channel smoke test remains unverified.
