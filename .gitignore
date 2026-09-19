@@ -5,3 +5,6 @@
 __pycache__/
 *.py[cod]
 
+# Local research receipts and generated version reports
+.local/
+

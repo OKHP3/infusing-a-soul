@@ -9,7 +9,7 @@
 - **External runtime**: OpenClaw agents using the files under each persona's `workspace/` directory
 - **Current checkout status**: Documentation is active, but implementation and deployment status varies by persona
 
-The project is not an application package. This checkout contains Markdown guidance, persona configuration, research material, templates, empty corpus staging directories, local agent skills, and a small Python version-audit script with a scheduled GitHub Actions workflow. There are no package manifests, application entry points, build scripts, or test suites in the repository.
+The project is not an application package. This checkout contains Markdown guidance, persona configuration, research material, templates, corpus staging directories, local agent skills, Python and Node contributor utilities, a PowerShell readiness checker, and a scheduled technology audit. Seven private skill package manifests expose Node test commands without third-party dependencies. Skill tests and version-audit tests are present; there is no root application entry point or frontend build.
 
 ## Mission and vision
 
@@ -37,6 +37,9 @@ Out of scope unless explicitly requested:
 - `README.md`: project overview, persona inventory, method summary, hardware context, and license intent.
 - `docs/methodology.md`: three-layer corpus collection, distillation, and deployment model.
 - `docs/phase-2-soul-writing.md`: historical Glee-fully Phase 2 design record and word-budget rationale.
+- `docs/technology-inventory.md`: dated technology review, evidence boundaries, and upgrade procedure.
+- `docs/technology-versions.json`: machine-readable upstream baselines and dated installed-version evidence.
+- `tests/`: network-free regression tests for the technology audit.
 - `article/drafts/`: article or public-writing drafts. Currently empty except for `.gitkeep`.
 - `context/threads/`: redacted, standalone extracts from external AI threads. These preserve provenance and resume context but are not current runtime authority.
 - `corpus/vernacular/`: tone and voice source material. Currently empty except for `.gitkeep`.
@@ -60,11 +63,11 @@ Persona-local `workspace/AGENTS.md` files apply only to their own persona direct
 
 ## Technology and runtime model
 
-- The repository format is Markdown plus small, repository-local skill assets and scripts. The version-audit script uses Python's standard library only.
+- The repository format is Markdown, JSON, and YAML plus repository-local skill assets and scripts. Python utilities use the standard library; Node skill utilities use built-in modules. See the technology inventory for host and upstream versions.
 - The documented runtime is OpenClaw, with workspace files loaded by an agent at startup and full references loaded on demand by skills.
-- The documented Glee-fully setup uses OpenClaw on GJS-LAPTOP through WSL2 and services hosted on a Mac Studio over the LAN.
+- The documented Glee-fully setup uses OpenClaw on GJS-LAPTOP and services hosted on a Mac Studio over the LAN. The September runbook describes Windows Companion with an internally managed WSL gateway; do not assume a purely native or historical standalone WSL installation without host evidence.
 - The documented Larry setup uses OpenClaw natively on a Mac Studio and local service endpoints.
-- These runtime details are documentation claims. This checkout does not contain OpenClaw configuration or a health-check script, so do not treat the endpoints as verified from this repository.
+- These runtime details are documentation claims. A read-only PowerShell readiness checker is present, but no OpenClaw configuration or deployment authority is stored here. Neither source presence nor a release audit proves endpoint health.
 
 ## Status and known inconsistencies
 
@@ -89,7 +92,11 @@ Persona-local `workspace/AGENTS.md` files apply only to their own persona direct
 
 ## Development and validation
 
-There is no repository-defined build, test, lint, or deployment command. The version-audit script is the only scheduled automation and is documented in `docs/technology-inventory.md`.
+There is no application build or deployment command. Run version-audit tests with `py -3 -m unittest discover -s tests -v` on Windows, or `python -m unittest discover -s tests -v` on Linux. Skill-local test commands remain scoped to their packages.
+
+Run `py -3 scripts/check-technology-versions.py` for a read-only upstream audit. Reports go to ignored `.local/technology-audit/`. Exit codes are 0 for unchanged automated baselines, 2 for new releases, and 1 for source failures or regressions. Unknown installed versions and manual tracks remain unknown even when the command succeeds.
+
+The scheduled Actions audit and weekly Dependabot action updates are documented in `docs/technology-inventory.md`. They become active from the default branch. External runtime upgrades require the host-specific compatibility and verification procedure; updating an upstream baseline is not evidence of deployment.
 
 The documented template workflow is:
 
