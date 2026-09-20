@@ -23,6 +23,57 @@ This update was produced during a 2026-09-12 session that began as a WSL trouble
 2. **Mac Studio LAN reachability — likely improved on the Mac side, not yet re-verified from GJS-LAPTOP.** From the gateway's own WSL shell (`curl -v http://10.10.1.201:1234/v1/models`), LM Studio's port 1234 came back **"Connection refused,"** not a timeout, from source `172.31.63.71` (the WSL instance's own NAT address). Refused, rather than timed out, meant the packet reached the Mac Studio's network stack fine and nothing was listening on port 1234 — a Mac-side service state, not a WSL-networking or LAN-routing problem. Jamie opened a separate Claude session directly on the Mac Studio (`cse_01KXJjW1ADrndwxjPpBRgWo1`) to investigate that side, and per "Mac Studio Recovery — Completed 2026-09-12" below, LM Studio's "Serve on Local Network" toggle was found off and has since been enabled, with reachability confirmed by a live curl from off-host. **This has not yet been re-confirmed from GJS-LAPTOP itself** — re-run `curl -v http://10.10.1.201:1234/v1/models` from the WSL shell before treating it as resolved and before attempting the `add-model-provider` config. Ollama (11434) and the Mac's own OpenClaw Gateway (18789) remain confirmed unreachable per that same section and still need Jamie's hands-on fix on the Mac; Qdrant (6333) and SearXNG (8888) are confirmed fixed on the Mac side but likewise unverified from GJS-LAPTOP specifically.
 3. OpenClaw's security audit item from 2026-08-02 (browser/web tools enabled without a sandbox on a model that could serve untrusted input) has not been re-evaluated against the new native install. Treat it as still open until reviewed.
 
+## Configuring a model provider on GJS-LAPTOP — step-by-step playbook
+
+This is the concrete next step for blocker 1 above. Run all of this from a real terminal in the Companion app's internal WSL layer (Claude cannot type into terminals — this is Jamie's to run by hand, same as `openclaw doctor` above).
+
+**1. Re-verify Mac Studio reachability from GJS-LAPTOP itself, not just from the Mac's own network path:**
+
+```zsh
+curl -v http://10.10.1.201:1234/v1/models
+```
+
+Blocker 2 above left this unconfirmed from GJS-LAPTOP specifically. LM Studio's LAN exposure was fixed and verified from a separate network path on 2026-09-12/13 — this step just closes the loop from the actual client machine before spending time on model config. Expect an HTTP 200 with a JSON model list. A "Connection refused" here means something changed back on the Mac side; a timeout means a routing/firewall problem between the two machines that's new information, not yet documented anywhere.
+
+**2. Confirm the model config is still a clean slate (it was as of 2026-09-12):**
+
+```zsh
+openclaw config get agents
+openclaw config get models
+```
+
+Expect `agents.defaults` with no `model` key and `models` with no providers registered, per the "Current blockers" note above. If a provider now shows up here that nobody added, stop and figure out why before continuing — that would mean either Jamie already did this by hand, or something else configured it.
+
+**3. Register LM Studio as a provider via `openclaw config set`, not through the chat-based `add-model-provider` skill.** The chat-based path is the normally-recommended, credential-free one, but it needs a working default model to run the agent turn that processes the request — the exact chicken-and-egg problem that produced the original `gpt-5.6-sol` error. CLI config first breaks that loop.
+
+The exact config key paths for registering a provider are **not yet confirmed** by this runbook — `openclaw config get models` in step 2 shows the current (empty) shape, and `docs.openclaw.ai` or `openclaw config schema` (if that subcommand exists) should confirm the exact keys before typing anything blind. Based on the dot-path pattern already confirmed elsewhere in this config (`gateway.auth.token`, `commands.ownerAllowFrom`, `memory.search.enabled`), the shape is likely something close to:
+
+```zsh
+openclaw config set models.providers.lmstudio.type openai
+openclaw config set models.providers.lmstudio.baseUrl http://10.10.1.201:1234/v1
+openclaw config set models.providers.lmstudio.apiKey lmstudio
+```
+
+`lmstudio` as the API key value is LM Studio's own documented placeholder for its local server, not a real secret — consistent with the original `add-model-provider` chat attempt from 2026-09-12, which used the same placeholder. Verify the actual key names against `openclaw config get models` output structure or the docs site before running these.
+
+**4. Point a default agent at the new provider:**
+
+```zsh
+openclaw config set agents.defaults.model lmstudio:<model-id>
+```
+
+`<model-id>` should be whatever LM Studio reports as loaded in step 1's `/v1/models` response — likely one of the persona-relevant local models already documented in `mac-studio-local-ai-workbench`.
+
+**5. Restart the gateway and verify:**
+
+```zsh
+openclaw doctor
+```
+
+then send a simple message in the Companion Chat tab. A response (not another "Agent error") confirms the provider is live.
+
+**6. Once basic chat works, retry the richer `add-model-provider` skill from Chat if a second provider (Ollama, once its own LAN exposure is fixed) needs adding** — that path works fine once there's already a working default model to run it.
+
 ## `openclaw doctor` findings (2026-09-12)
 
 Jamie ran `openclaw doctor` from a real terminal after waking up (Claude cannot type into terminals; this had to be done by hand). It runs inside the Companion app's internal WSL layer, per item 3 in Thread Closeout above. Findings, most actionable first:
@@ -191,3 +242,7 @@ Use these labels consistently in future repository and Notion updates:
 - `active`: the gateway, primary model endpoint, and authorized channel smoke test all passed on the same dated check.
 
 The verified status on 2026-09-12 is: `authored / runtime unverified`. The gateway itself is confirmed reachable for the first time on this host (an improvement over 2026-08-02, where it depended on a since-removed WSL workaround). Three of the four Mac Studio services (LM Studio, Qdrant, SearXNG) are now confirmed reachable from off-host, though not yet re-checked specifically from GJS-LAPTOP; Ollama and the Mac's own OpenClaw Gateway remain loopback-only. The primary model endpoint is still unconfigured on the Windows side and the end-to-end channel smoke test remains unverified.
+
+## Cross-repo program tracker
+
+A standing readiness/blocker tracker across all three SHOAL repos (this one, mac-studio-local-ai-workbench, shoal-ai-server) lives at `shoal-ai-server/docs/program-status.md`. Check it first in a new thread before re-deriving status from scratch.
