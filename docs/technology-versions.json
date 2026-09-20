@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-09-19T02:57:05+00:00",
+  "baseline_commit": "f9b1f2d13bd370586676677b935e1dcf9788370e",
+  "scope": "Repository source, contributor utilities, documented runtime dependencies. Recorded versions are dated evidence, never live installation attestations.",
+  "technologies": [
+    {
+      "id": "openclaw",
+      "name": "OpenClaw",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/openclaw/openclaw/releases/latest",
+      "reviewed_version": "2026.9.5",
+      "recorded_version": "2026.6.1",
+      "evidence": "Historical WSL deployment, 2026-08-02; replacement gateway version unknown",
+      "follow_up": "Verify on the owning host, test compatibility, then upgrade and record the result."
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/ollama/ollama/releases/latest",
+      "reviewed_version": "0.34.2",
+      "recorded_version": null,
+      "evidence": "External host version not recorded or reachable in this audit",
+      "follow_up": "Verify on the owning host, test compatibility, then upgrade and record the result."
+    },
+    {
+      "id": "qdrant",
+      "name": "Qdrant",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/qdrant/qdrant/releases/latest",
+      "reviewed_version": "1.19.1",
+      "recorded_version": null,
+      "evidence": "External host version not recorded or reachable in this audit",
+      "follow_up": "Verify on the owning host, test compatibility, then upgrade and record the result."
+    },
+    {
+      "id": "open-webui",
+      "name": "Open WebUI",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/open-webui/open-webui/releases/latest",
+      "reviewed_version": "0.11.3",
+      "recorded_version": "0.11.0",
+      "evidence": "Mac container image in docs/asus-gateway-runbook.md, 2026-09-12; not reverified live",
+      "follow_up": "Verify on the owning host, test compatibility, then upgrade and record the result."
+    },
+    {
+      "id": "checkout",
+      "name": "actions/checkout",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/actions/checkout/releases/latest",
+      "reviewed_version": "7.0.1",
+      "recorded_version": "v6 -> 7.0.1",
+      "evidence": "Workflow before this change -> proposed SHA pin",
+      "follow_up": "Dependabot proposes reviewed action pin changes."
+    },
+    {
+      "id": "setup-python",
+      "name": "actions/setup-python",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/actions/setup-python/releases/latest",
+      "reviewed_version": "7.0.0",
+      "recorded_version": "v6 -> 7.0.0",
+      "evidence": "Workflow before this change -> proposed SHA pin",
+      "follow_up": "Dependabot proposes reviewed action pin changes."
+    },
+    {
+      "id": "upload-artifact",
+      "name": "actions/upload-artifact",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/actions/upload-artifact/releases/latest",
+      "reviewed_version": "7.0.1",
+      "recorded_version": "v7 -> 7.0.1",
+      "evidence": "Workflow before this change -> proposed SHA pin",
+      "follow_up": "Dependabot proposes reviewed action pin changes."
+    },
+    {
+      "id": "powershell",
+      "name": "PowerShell",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/PowerShell/PowerShell/releases/latest",
+      "reviewed_version": "7.6.6",
+      "recorded_version": "7.6.5",
+      "evidence": "Local shell observation, 2026-09-18 America/Chicago",
+      "follow_up": "Verify on the owning host, test compatibility, then upgrade and record the result."
+    },
+    {
+      "id": "git-windows",
+      "name": "Git for Windows",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/git-for-windows/git/releases/latest",
+      "reviewed_version": "2.55.0.windows.5",
+      "recorded_version": "2.55.0.windows.5",
+      "evidence": "Local git --version, 2026-09-18 America/Chicago",
+      "follow_up": "Verify on the owning host, test compatibility, then upgrade and record the result."
+    },
+    {
+      "id": "wsl",
+      "name": "WSL",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/microsoft/WSL/releases/latest",
+      "reviewed_version": "2.7.14",
+      "recorded_version": "2.7.14.0",
+      "evidence": "Local wsl --version, 2026-09-18 America/Chicago; distribution not inspected",
+      "follow_up": "Verify on the owning host, test compatibility, then upgrade and record the result."
+    },
+    {
+      "id": "docker-engine",
+      "name": "Docker Engine / CLI",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/moby/moby/releases/latest",
+      "reviewed_version": "29.8.1",
+      "recorded_version": "29.6.1",
+      "evidence": "Local client only, 2026-09-18 America/Chicago; Mac engine unknown",
+      "follow_up": "Verify on the owning host, test compatibility, then upgrade and record the result."
+    },
+    {
+      "id": "homebrew",
+      "name": "Homebrew",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/Homebrew/brew/releases/latest",
+      "reviewed_version": "7.0.4",
+      "recorded_version": null,
+      "evidence": "External host version not recorded or reachable in this audit",
+      "follow_up": "Verify on the owning host, test compatibility, then upgrade and record the result."
+    },
+    {
+      "id": "github-cli",
+      "name": "GitHub CLI",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/cli/cli/releases/latest",
+      "reviewed_version": "2.101.0",
+      "recorded_version": "2.96.0",
+      "evidence": "Local gh --version, 2026-09-18 America/Chicago; CI binary is runner-managed",
+      "follow_up": "Verify on the owning host, test compatibility, then upgrade and record the result."
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "kind": "python",
+      "source": "https://www.python.org/downloads/",
+      "reviewed_version": "3.14.7",
+      "recorded_version": "3.14.0rc1",
+      "evidence": "Local py -3; workflow selects 3.14, 2026-09-18 America/Chicago",
+      "follow_up": "CI automatically resolves stable 3.14 patches; review a new minor series before changing the workflow."
+    },
+    {
+      "id": "node-current",
+      "name": "Node.js Current",
+      "kind": "node-current",
+      "source": "https://nodejs.org/dist/index.json",
+      "reviewed_version": "26.9.0",
+      "recorded_version": "24.11.1",
+      "evidence": "Local node --version; repository has no engines pin, 2026-09-18 America/Chicago",
+      "follow_up": "Use the compatibility and host-upgrade procedure in docs/technology-inventory.md."
+    },
+    {
+      "id": "node-lts",
+      "name": "Node.js LTS",
+      "kind": "node-lts",
+      "source": "https://nodejs.org/dist/index.json",
+      "reviewed_version": "24.21.0",
+      "recorded_version": "24.11.1",
+      "evidence": "Same local Node installation; LTS is the proposed maintenance channel",
+      "follow_up": "Use the compatibility and host-upgrade procedure in docs/technology-inventory.md."
+    },
+    {
+      "id": "npm",
+      "name": "npm",
+      "kind": "npm",
+      "source": "https://registry.npmjs.org/npm/latest",
+      "reviewed_version": "12.0.2",
+      "recorded_version": "11.6.2",
+      "evidence": "Local npm --version; seven private skill packages have no dependencies, 2026-09-18 America/Chicago",
+      "follow_up": "Use the compatibility and host-upgrade procedure in docs/technology-inventory.md."
+    },
+    {
+      "id": "lm-studio",
+      "name": "LM Studio",
+      "kind": "lm-studio",
+      "source": "https://lmstudio.ai/download",
+      "reviewed_version": "0.4.24",
+      "recorded_version": null,
+      "evidence": "Mac application version unknown; model tag does not identify application version",
+      "follow_up": "Use the compatibility and host-upgrade procedure in docs/technology-inventory.md."
+    },
+    {
+      "id": "docker-desktop",
+      "name": "Docker Desktop",
+      "kind": "docker-desktop",
+      "source": "https://docs.docker.com/desktop/release-notes/",
+      "reviewed_version": "4.91.0",
+      "recorded_version": "4.81.0 (build 232925)",
+      "evidence": "Local executable product metadata, 2026-09-18 America/Chicago; Mac Desktop version unknown",
+      "follow_up": "Use the compatibility and host-upgrade procedure in docs/technology-inventory.md."
+    },
+    {
+      "id": "searxng",
+      "name": "SearXNG",
+      "kind": "manual",
+      "source": "https://docs.searxng.org/admin/installation-docker.html",
+      "reviewed_version": "Rolling; docs identify 2026.9.18+c0042add3",
+      "recorded_version": null,
+      "evidence": "Container documented; installed image digest and commit unknown",
+      "follow_up": "Review image digest/commit weekly; back up config and validate search after update. No stable GitHub release channel."
+    },
+    {
+      "id": "companion",
+      "name": "OpenClaw Windows Hub / Companion",
+      "kind": "github-release",
+      "source": "https://api.github.com/repos/openclaw/openclaw-windows-node/releases/latest",
+      "reviewed_version": "2026.9.4",
+      "recorded_version": null,
+      "evidence": "Companion in docs/asus-gateway-runbook.md; installed app version unknown",
+      "follow_up": "Use the Hub updater after verifying installed version and gateway compatibility; track gateway separately."
+    },
+    {
+      "id": "windows",
+      "name": "Windows 11",
+      "kind": "manual",
+      "source": "https://learn.microsoft.com/en-us/windows/release-health/windows11-release-information",
+      "reviewed_version": "26H1 28000.2956; 25H2 26200.9457",
+      "recorded_version": "25H2 26200.9457",
+      "evidence": "Local registry and WSL version output, 2026-09-18 America/Chicago",
+      "follow_up": "Use Windows Update eligibility. Keep 25H2 servicing current; do not force a different hardware release."
+    },
+    {
+      "id": "ubuntu",
+      "name": "Ubuntu",
+      "kind": "manual",
+      "source": "https://releases.ubuntu.com/",
+      "reviewed_version": "26.04.1 LTS",
+      "recorded_version": null,
+      "evidence": "Historical WSL distro and Companion-managed WSL layer; distro version unknown",
+      "follow_up": "Inspect /etc/os-release on the gateway before choosing a supported upgrade."
+    },
+    {
+      "id": "macos",
+      "name": "macOS",
+      "kind": "manual",
+      "source": "https://support.apple.com/en-us/109033",
+      "reviewed_version": "27.0 Golden Gate",
+      "recorded_version": null,
+      "evidence": "Mac Studio is documented; installed OS version unknown",
+      "follow_up": "Record sw_vers, check hardware and service compatibility, then use Software Update."
+    },
+    {
+      "id": "discord",
+      "name": "Discord API",
+      "kind": "manual",
+      "source": "https://docs.discord.com/developers/reference",
+      "reviewed_version": "10",
+      "recorded_version": null,
+      "evidence": "Channel documented; API version selected by external OpenClaw installation",
+      "follow_up": "Review API deprecations monthly and validate through the supported OpenClaw integration."
+    },
+    {
+      "id": "markdown",
+      "name": "Markdown / GitHub Flavored Markdown",
+      "kind": "manual",
+      "source": "https://spec.commonmark.org/",
+      "reviewed_version": "CommonMark 0.31.2",
+      "recorded_version": null,
+      "evidence": "Markdown corpus; no renderer or specification pin",
+      "follow_up": "CommonMark is a reference, not proof of renderer conformance. Preview changed Markdown; review spec annually."
+    },
+    {
+      "id": "yaml",
+      "name": "YAML",
+      "kind": "manual",
+      "source": "https://yaml.org/spec/1.2.2/",
+      "reviewed_version": "1.2.2",
+      "recorded_version": null,
+      "evidence": "Workflow, skill metadata, fixtures; local minimal parser is not a full YAML implementation",
+      "follow_up": "Validate against the actual consumer; review format changes annually."
+    },
+    {
+      "id": "json",
+      "name": "JSON",
+      "kind": "manual",
+      "source": "https://www.rfc-editor.org/info/rfc8259/",
+      "reviewed_version": "RFC 8259",
+      "recorded_version": null,
+      "evidence": "Skill schemas, fixtures, metadata, and version manifest",
+      "follow_up": "Validate JSON and schema contracts when changing files; standard-library parsers need no extra package."
+    },
+    {
+      "id": "javascript",
+      "name": "JavaScript / ECMAScript",
+      "kind": "manual",
+      "source": "https://ecma-international.org/publications-and-standards/standards/ecma-262/",
+      "reviewed_version": "ECMAScript 2026, ECMA-262 edition 17",
+      "recorded_version": "No language-edition pin",
+      "evidence": "17 .mjs and 2 .cjs files in the initial tracked checkout; Node provides the implementation",
+      "follow_up": "Track Node releases for executable compatibility. Language standard edition is not an installed runtime version."
+    },
+    {
+      "id": "github",
+      "name": "GitHub / GitHub Actions hosted runner",
+      "kind": "manual",
+      "source": "https://github.com/actions/runner-images",
+      "reviewed_version": "Managed service / ubuntu-latest",
+      "recorded_version": null,
+      "evidence": "GitHub hosting and Actions; runner-managed Bash and system tools",
+      "follow_up": "Inspect run provenance and runner image announcements monthly. Managed service has no repository-controlled product version."
+    },
+    {
+      "id": "clickclack",
+      "name": "ClickClack / terminal interface",
+      "kind": "manual",
+      "source": "https://github.com/OKHP3/infusing-a-soul/blob/main/souls/larry-the-lobster/workspace/TOOLS.md",
+      "reviewed_version": null,
+      "recorded_version": null,
+      "evidence": "Named only in Larry TOOLS; upstream product identity not established",
+      "follow_up": "Identify the actual UI package and official publisher on the Mac before selecting an update source."
+    }
+  ]
+}

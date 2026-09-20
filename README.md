@@ -67,6 +67,10 @@ promotion purpose.
 - **ASUS Vivobook Pro 15** (GJS-LAPTOP): OpenClaw gateway (WSL2/Ubuntu), Discord channel
 - **Network**: Local LAN at 10.10.1.x, all inference stays on-premises
 
+## Technology maintenance
+
+The [technology inventory and update policy](docs/technology-inventory.md) records repository tools, documented external services, observed versions, current stable releases, and unresolved host evidence. The [machine-readable ledger](docs/technology-versions.json) drives the daily release audit. Dependabot proposes GitHub Actions updates weekly, and CI resolves stable Python patches within the selected series. External service upgrades follow the compatibility and backup procedure in the inventory.
+
 ## Brand Context
 
 This project lives under **OverKill Hill P3** (Precision, Protocol, Promptcraft). The souls serve the OKHP3 ecosystem:

@@ -2,37 +2,100 @@ name: Check external technology versions
 
 on:
   schedule:
-    - cron: "23 14 * * 1"
+    - cron: "23 14 * * *"
   workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/check-technology-versions.yml'
+      - '.github/dependabot.yml'
+      - 'scripts/check-technology-versions.py'
+      - 'tests/test_technology_versions.py'
+      - 'docs/technology-versions.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/check-technology-versions.yml'
+      - '.github/dependabot.yml'
+      - 'scripts/check-technology-versions.py'
+      - 'tests/test_technology_versions.py'
+      - 'docs/technology-versions.json'
 
 permissions:
   contents: read
-  issues: write
+
+concurrency:
+  group: technology-audit-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  audit:
+  test:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          python-version: "3.14"
-      - name: Check authoritative release sources
-        id: check
-        continue-on-error: true
-        run: python scripts/check-technology-versions.py | tee version-audit.txt
-      - name: Upload audit report
-        uses: actions/upload-artifact@v7
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.14'
+          check-latest: true
+          allow-prereleases: false
+      - name: Test release parsing and issue handling without network access
+        run: python -m unittest discover -s tests -v
+
+  audit:
+    if: >-
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    needs: test
+    concurrency:
+      group: technology-version-tracking-issue
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.14'
+          check-latest: true
+          allow-prereleases: false
+      - name: Record actual runner versions
+        run: |
+          python --version
+          git --version
+      - name: Audit authoritative sources and maintain the tracking issue
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set +e
+          python scripts/check-technology-versions.py --update-issue
+          result=$?
+          set -e
+          if [ "$result" -eq 2 ]; then
+            echo "::notice::New stable releases found; review the tracking issue."
+          elif [ "$result" -ne 0 ]; then
+            exit "$result"
+          fi
+      - name: Add audit to run summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f .local/technology-audit/version-audit.md ]; then
+            cat .local/technology-audit/version-audit.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Preserve report, including source failures
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: technology-version-audit
-          path: version-audit.txt
-      - name: Open or refresh tracking issue
-        if: steps.check.outcome == 'failure'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if ! gh issue list --state open --search "Technology version audit" --json title --jq '.[].title' | grep -q "Technology version audit"; then
-            gh issue create \
-              --title "Technology version audit: review external updates" \
-              --body $'The scheduled technology audit found a changed or unavailable authoritative version source.\n\nReview the workflow artifact and update docs/technology-inventory.md after confirming compatibility on the target hosts. Do not treat this issue as authorization to auto-upgrade external services.'
-          fi
+          path: .local/technology-audit/version-audit.*
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
