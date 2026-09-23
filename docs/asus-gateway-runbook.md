@@ -1,8 +1,61 @@
 # ASUS Glee-fully Gateway Runbook
 
-Last verified: 2026-09-12
+Last verified: 2026-09-23
 
 This runbook records the verified operating path for Glee-fully on GJS-LAPTOP, the ASUS Windows system. It is an operational companion to the persona source files. It does not contain credentials or replace the external OpenClaw configuration.
+
+## Session Update (2026-09-23)
+
+Read this before the 2026-09-12 closeout below. It supersedes that section wherever they conflict.
+
+### Outage root cause: Virtual Machine Platform
+
+The Companion showed "Gateway connection failed / Transport error" with 452 consecutive refused connections to `ws://127.0.0.1:18789`. Starting the WSL gateway failed with `Wsl/Service/CreateInstance/CreateVm/HCS/HCS_E_SERVICE_NOT_AVAILABLE`, and the `vmcompute` service did not exist.
+
+Cause: item 1 of the 2026-09-12 closeout disabled the `VirtualMachinePlatform` optional feature while removing standalone WSL. The Companion's own gateway distro (`OpenClawGateway`) is still WSL2 and needs that feature. The disable took effect at the next reboot, which was the KB5124010 install reboot at 2026-09-23 01:33. KB5124010 was the trigger, not the cause.
+
+Fix, run by Jamie in admin PowerShell: `bcdedit /set hypervisorlaunchtype auto` and `dism /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart`, then a reboot. Verified afterward: `vmcompute` RUNNING, VirtualMachinePlatform Enabled, `OpenClawGateway` Running (WSL 2), and TCP 18789 open.
+
+Rule: never disable VirtualMachinePlatform on this host. The Companion's local gateway depends on it.
+
+### Configuration applied through the Companion Config editor
+
+Current `openclaw.json` evidence on 2026-09-23 showed only `gateway`, `plugins`, `meta`, and an empty `agents.entries.main`. The 2026-09-12 `memory.search.enabled=false` change and any other doctor-era edits were not present. The following was applied and saved, and the gateway reloaded and reconnected cleanly:
+
+| Key | Value |
+| --- | --- |
+| `models.providers.lmstudio` | `baseUrl http://10.10.1.201:1234/v1`, `api openai-completions`, placeholder apiKey `lmstudio`, models `lfm2-24b-a2b-mlx` (128K), `mistral-small-3.2-24b-instruct-2506-mlx` (131K), `text-embedding-nomic-embed-text-v1.5` |
+| `agents.defaults.model` | `lmstudio/lfm2-24b-a2b-mlx` |
+| `memory.search` | enabled, provider `lmstudio`, model `text-embedding-nomic-embed-text-v1.5`, remote baseUrl `http://10.10.1.201:1234/v1`, fallback `none` (local-only, never silently falls back to OpenAI) |
+| `tools.exec.mode` | `ask` (commands outside the safe list need owner approval) |
+
+LM Studio at `10.10.1.201:1234` was reachable from GJS-LAPTOP. Companion chat returned replies from the Mac Studio. Model provider blocker 1 below is resolved.
+
+### Findings that need a decision
+
+1. **LFM2-24B-A2B fabricates tool results.** Asked to run `sha256sum`, it once returned an invented hash with no tool call, and twice claimed an edit or cleanup that the tool cards show never happened. It does call tools sometimes, and the tool cards are accurate, so trust tool cards, not its prose. It is a weak brain for an agent that holds `exec`. This is why `tools.exec.mode` is now `ask`.
+2. **The Mistral Small 3.2 fallback cannot load while LFM2 is resident.** LM Studio refused with "insufficient system resources" on the 36 GB Mac Studio. Only one roughly 24B model fits alongside the embedding model.
+3. **`\\wsl.localhost\OpenClawGateway` is not accessible from Explorer** ("Attempt to access invalid address"). This is likely the same Plan9/virtiofs breakage recorded on 2026-09-12. Windows-side file copies into the gateway are blocked until that is fixed.
+
+### Workspace deployment status
+
+- Gateway workspace: `/home/openclaw/.openclaw/workspace` (git-tracked; OpenClaw defaults AGENTS.md, SOUL.md, IDENTITY.md, USER.md, DREAMS.md).
+- `TOOLS.md`: written by the agent. Content matches the repo copy plus one stray trailing line `<<<END>>>` (1,988 bytes against 1,979 expected). Needs the last line removed.
+- `SOUL.md` and `AGENTS.md`: **not deployed**. OpenClaw defaults are still active, so Glee-fully's voice is not live.
+
+Deterministic deploy from a Windows PowerShell prompt, with the expected SHA-256 prefixes TOOLS `2e7389b53b9567d8`, SOUL `71992e07c6115596`, AGENTS `5af5d3a1bfe8ac27`:
+
+```powershell
+wsl -d OpenClawGateway -u openclaw -- bash -lc "cd ~/.openclaw/workspace && git -c user.name=okhp3 -c user.email=okhp3@localhost commit -qam 'snapshot before glee-fully soul' ; cp /mnt/c/Users/jamie/OKH-Local/04_GitHub_Mirrors/infusing-a-soul/souls/glee-fully/workspace/{SOUL,AGENTS,TOOLS}.md . && sha256sum SOUL.md AGENTS.md TOOLS.md"
+```
+
+### Still open, owner action required
+
+- Discord channel: no `channels` block exists in the current config. Adding it needs the bot token, which is owner-only.
+- `commands.ownerAllowFrom`: needs Jamie's Discord user id once the channel exists.
+- `gateway.auth.token` is still plaintext. Run `openclaw secrets configure`, then `openclaw secrets audit --check`.
+- `openclaw security audit --deep` and `openclaw backup create` have still not been run.
+- Ollama, Qdrant, and SearXNG reachability from inside the gateway distro is unverified.
 
 ## Thread Closeout (2026-09-12)
 
