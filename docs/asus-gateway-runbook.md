@@ -1,8 +1,54 @@
 # ASUS Glee-fully Gateway Runbook
 
-Last verified: 2026-09-23
+Last verified: 2026-09-24
 
 This runbook records the verified operating path for Glee-fully on GJS-LAPTOP, the ASUS Windows system. It is an operational companion to the persona source files. It does not contain credentials or replace the external OpenClaw configuration.
+
+## Session Update (2026-09-23 evening to 2026-09-24)
+
+This supersedes parts of the 2026-09-23 section below. Where they conflict, this section wins.
+
+### Current model and policy state
+
+| Setting | Value | Changed from |
+|---|---|---|
+| `agents.defaults.model.primary` | `lmstudio/mistral-small-3.2-24b-instruct-2506-mlx` | `lmstudio/lfm2-24b-a2b-mlx` (fabricated tool results) |
+| `agents.defaults.model.fallbacks` | `["ollama-local/granite4.1:3b"]` | none |
+| `agents.defaults.utilityModel` | `ollama-local/granite4.1:3b` | unset |
+| `models.providers.ollama-local` | `http://127.0.0.1:11434/v1`, `openai-completions`, model `granite4.1:3b` (16K context) | new |
+| `tools.exec.mode` | `allowlist` | `ask` (blocks every tool in scheduled runs, openclaw/openclaw#138853) |
+
+LFM2 and Mistral Small are both still registered under `lmstudio`. The Mac cannot hold both 24B models at once; LM Studio refuses the second with an insufficient-resources error.
+
+### Laptop fallback model
+
+- Ollama installed inside the `OpenClawGateway` distro (not Windows). Install needed `zstd` first.
+- One model: `granite4.1:3b` (IBM, 2.1 GB). Direct tool calls verified on both `/v1/chat/completions` and `/api/chat`.
+- Removed after testing: `ministral-3:8b` (half on CPU at 16K, ignored tools inside the agent) and `ministral-3:3b` (failed a one-word instruction check).
+- systemd override at `/etc/systemd/system/ollama.service.d/override.conf`: `OLLAMA_CONTEXT_LENGTH=16384`, `OLLAMA_FLASH_ATTENTION=1`, `OLLAMA_KV_CACHE_TYPE=q8_0`, `OLLAMA_KEEP_ALIVE=5m`.
+- Warning: Companion's "Remove Local Gateway" deletes the distro and this install with it.
+
+### Night Shift
+
+- Scheduled job `night-shift`: `0 1 * * *` America/Chicago, isolated session, `toolsAllow: read, write, edit`, delivery none.
+- Procedure: `~/.openclaw/workspace/NIGHT-SHIFT.md`. Queue and results: `~/.openclaw/workspace/night-shift/` (the distro does not mount `C:`, so the queue lives inside the workspace).
+- Operated from Windows with the helpers in `scripts/night-shift/` (`ns-add`, `ns-queue`, `ns-run`, `ns-status`, `ns-brief`, `ns-read`). Story: `docs/story/03-night-shift.md`.
+- Smoke test 2026-09-24: passed in 83 seconds on Mistral Small 3.2. Result file written, queue line marked, brief written. Input size about 39K tokens, which exceeds the Granite fallback's 16K window.
+- Laptop power: `powercfg /change standby-timeout-ac 0` so the gateway stays up overnight on AC.
+
+### Built-in scheduled jobs found
+
+| Job | Schedule | Tools | Planned change |
+|---|---|---|---|
+| `heartbeat-main` | every 30 minutes | default | slow to every 2 hours |
+| `Memory Dreaming Promotion` | 03:00 daily | `*` | limit to file tools |
+| `skill-collection-review-main` | weekly | includes `exec` | limit to file tools |
+
+### Items from the 2026-09-23 section now resolved or changed
+
+- `tools.exec.mode ask` is replaced by `allowlist` for the reason above.
+- The Mistral fallback note is moot; Mistral is now primary.
+- Workspace deployment of Glee-fully's SOUL.md and AGENTS.md is still pending; TOOLS.md still carries the stray `<<<END>>>` line.
 
 ## Session Update (2026-09-23)
 
@@ -43,7 +89,7 @@ LM Studio at `10.10.1.201:1234` was reachable from GJS-LAPTOP. Companion chat re
 - `TOOLS.md`: written by the agent. Content matches the repo copy plus one stray trailing line `<<<END>>>` (1,988 bytes against 1,979 expected). Needs the last line removed.
 - `SOUL.md` and `AGENTS.md`: **not deployed**. OpenClaw defaults are still active, so Glee-fully's voice is not live.
 
-Deterministic deploy from a Windows PowerShell prompt, with the expected SHA-256 prefixes TOOLS `2e7389b53b9567d8`, SOUL `71992e07c6115596`, AGENTS `5af5d3a1bfe8ac27`:
+Deterministic deploy from a Windows PowerShell prompt, with the expected SHA-256 prefixes TOOLS `7eb85017e8f35280`, SOUL `71992e07c6115596`, AGENTS `5af5d3a1bfe8ac27`:
 
 ```powershell
 wsl -d OpenClawGateway -u openclaw -- bash -lc "cd ~/.openclaw/workspace && git -c user.name=okhp3 -c user.email=okhp3@localhost commit -qam 'snapshot before glee-fully soul' ; cp /mnt/c/Users/jamie/OKH-Local/04_GitHub_Mirrors/infusing-a-soul/souls/glee-fully/workspace/{SOUL,AGENTS,TOOLS}.md . && sha256sum SOUL.md AGENTS.md TOOLS.md"

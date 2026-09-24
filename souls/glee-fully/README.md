@@ -6,10 +6,11 @@ Warm, sassy, retro-fabulous AI persona inspired by Glee Hill. Chai-sipping, colo
 
 | Field | Value |
 |-------|-------|
-| Platform | OpenClaw on GJS-LAPTOP (WSL2/Ubuntu, okhp3 user) |
+| Platform | OpenClaw Windows Companion on GJS-LAPTOP (managed WSL gateway) |
 | Channel | Discord (Glee-fully#4667, OverKill Hill P3 server) |
-| Primary Model | lmstudio/lfm2-24b-a2b-mlx via Mac Studio (10.10.1.201:1234) |
+| Primary Model | lmstudio/mistral-small-3.2-24b-instruct-2506-mlx via Mac Studio (since 2026-09-23; LFM2 retired after fabricating tool results) |
 | Persona Model | mistral-small3.1:24b via Ollama (10.10.1.201:11434) |
+| Fallback / Utility Model | ollama-local/granite4.1:3b on the laptop GPU |
 | Vector DB | Qdrant (10.10.1.201:6333) |
 | Search | SearXNG (10.10.1.201:8888) |
 

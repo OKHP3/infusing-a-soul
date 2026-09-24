@@ -14,11 +14,11 @@ This is not prompt engineering. It is persona architecture.
 
 | Soul | Platform | Model | Voice | Status |
 |------|----------|-------|-------|--------|
-| **Glee-fully** | OpenClaw on GJS-LAPTOP (WSL2) | lfm2-24b via LM Studio | Warm, sassy, retro-PNW sparkle | Gateway verified, end-to-end blocked |
+| **Glee-fully** | OpenClaw Windows Companion on GJS-LAPTOP | Mistral Small 3.2 24B via LM Studio (Mac Studio); Granite 4.1 3B local fallback | Warm, sassy, retro-PNW sparkle | Agent online, Night Shift live, voice files pending |
 | **Larry the Lobster** | OpenClaw on Mac Studio | TBD | Technical, ROY-principled, ForgeDialect | Planned |
 | **AskJamie** | TBD | TBD | Helpdesk clarity, peer-level directness | Planned |
 
-Glee-fully's ASUS gateway was verified locally on 2026-08-02. Its WSL boot task is still absent, and the Mac Studio model, memory, and search services were unreachable from the ASUS during that check. An authorized Discord response has not yet been verified end to end. See [the ASUS gateway runbook](docs/asus-gateway-runbook.md) for the current operating record.
+As of 2026-09-24, Glee-fully's gateway runs under OpenClaw Windows Companion on the ASUS, uses a Mac Studio model as its primary brain with a small laptop model as fallback, and works an overnight task queue (the Night Shift) whose first run passed end to end. Glee-fully's own SOUL.md and AGENTS.md are not yet loaded into the live workspace, and Discord is not yet connected. See [the story documents](docs/story/00-project-overview.md) for the narrative and [the ASUS gateway runbook](docs/asus-gateway-runbook.md) for the operating record.
 
 ## Repo Structure
 
@@ -40,9 +40,11 @@ infusing-a-soul/
 │   ├── vernacular/           # Tone frameworks, Glee-isms, cultural DNA
 │   ├── governance/           # Cathedral Codex, Canon, entity models
 │   └── templates/            # FrankenTemplates, PromptChain, Pulsebooks
-├── docs/                     # Build journal and methodology
+├── docs/                     # Build journal, methodology, and runbooks
+│   └── story/                # Numbered story documents that feed the public project page
 ├── article/                  # LinkedIn/blog content drafts
 ├── scripts/                  # Small utilities used by repository automation
+│   └── night-shift/          # Overnight queue: PowerShell helpers and gateway scripts
 └── skills/                   # Promotion mirror for selected portable skills
 ```
 
@@ -64,7 +66,7 @@ promotion purpose.
 ## Hardware Stack
 
 - **Mac Studio M4 Max** (36GB): LM Studio + Ollama host, Qdrant vector DB, SearXNG search
-- **ASUS Vivobook Pro 15** (GJS-LAPTOP): OpenClaw gateway (WSL2/Ubuntu), Discord channel
+- **ASUS Vivobook Pro 15** (GJS-LAPTOP): OpenClaw Windows Companion and its managed gateway, plus one small fallback model (Granite 4.1 3B in Ollama)
 - **Network**: Local LAN at 10.10.1.x, all inference stays on-premises
 
 ## Technology maintenance

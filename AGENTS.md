@@ -39,6 +39,8 @@ Out of scope unless explicitly requested:
 - `docs/phase-2-soul-writing.md`: historical Glee-fully Phase 2 design record and word-budget rationale.
 - `docs/technology-inventory.md`: dated technology review, evidence boundaries, and upgrade procedure.
 - `docs/technology-versions.json`: machine-readable upstream baselines and dated installed-version evidence.
+- `docs/story/`: numbered story documents (00 overview through 05 status) plus `project-page-brief.md`, the source for the overkillhill.com project page. Public-facing: keep LAN addresses, tokens, IDs, and Notion URLs out.
+- `scripts/night-shift/`: Night Shift overnight-queue helpers (PowerShell) and the gateway-side shell scripts they pipe into the Companion's WSL distro.
 - `tests/`: network-free regression tests for the technology audit.
 - `article/drafts/`: article or public-writing drafts. Currently empty except for `.gitkeep`.
 - `context/threads/`: redacted, standalone extracts from external AI threads. These preserve provenance and resume context but are not current runtime authority.
@@ -71,7 +73,7 @@ Persona-local `workspace/AGENTS.md` files apply only to their own persona direct
 
 ## Status and known inconsistencies
 
-- **Glee-fully**: README and Phase 2 notes describe an active Discord deployment and authored workspace files. The referenced full source corpus is not present in this checkout, so corpus completeness is not verified here.
+- **Glee-fully**: As of 2026-09-24 the gateway is online under OpenClaw Windows Companion with a Mac Studio primary model and a laptop fallback, and the Night Shift smoke test passed. The live workspace still runs OpenClaw's default SOUL.md and AGENTS.md, and Discord is not connected. The referenced full source corpus is not present in this checkout, so corpus completeness is not verified here.
 - **Larry the Lobster**: Workspace files and research materials are present. The root README calls Larry planned, while the persona README records Phases 1 and 2 as complete. Treat deployment as unresolved until verified outside this repository.
 - **AskJamie**: Planned. The README says workspace files have not been written.
 - **Phase 3 work**: Persona skill conversion is described as queued or next in the documentation. No persona skill directories contain authored skills in this checkout.

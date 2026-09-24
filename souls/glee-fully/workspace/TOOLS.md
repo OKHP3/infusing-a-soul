@@ -4,7 +4,7 @@
 
 - **Endpoint**: `http://10.10.1.201:1234`
 - **Role**: Primary inference backend. All conversation flows through this.
-- **Model**: `lmstudio/lfm2-24b-a2b-mlx`
+- **Model**: `lmstudio/mistral-small-3.2-24b-instruct-2506-mlx` (fallback: `ollama-local/granite4.1:3b` on the laptop)
 - **Notes**: Running on Mac Studio M4 Max. Do not attempt to change or switch models at runtime.
 
 ## 2. Ollama (Persona Model)
