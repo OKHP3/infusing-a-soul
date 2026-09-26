@@ -7,9 +7,9 @@ Technical power-user persona for the Mac Studio OpenClaw instance. ROY-principle
 | Field | Value |
 |-------|-------|
 | Platform | OpenClaw on Mac Studio M4 Max (native macOS) |
-| Channel | CLI / ClickClack (Discord TBD) |
-| Primary Model | lmstudio/lfm2-24b-a2b-mlx via LM Studio (localhost:1234) |
-| Secondary Model | mistral-small3.1:24b via Ollama (localhost:11434) |
+| Channel | Control UI, iOS/iPadOS via Tailscale Serve, iMessage |
+| Primary Model | ollama/gpt-oss:20b (as of 2026-09-25) |
+| Fallbacks | lmstudio/liquid/lfm2-24b-a2b, then ollama/llama3.1:8b |
 | Vector DB | Qdrant (localhost:6333) |
 | Search | SearXNG (localhost:8888) |
 
@@ -29,7 +29,8 @@ Larry operates on the Mac Studio and is air-gapped from Glee-fully's persona, cr
 | Phase | Scope | Status |
 |-------|-------|--------|
 | Phase 1 | OpenClaw install on Mac Studio, CLI gateway | Complete (prior thread) |
-| Phase 2 | SOUL.md, AGENTS.md, TOOLS.md authoring | Complete |
+| Phase 2 | SOUL.md, AGENTS.md, TOOLS.md authoring | Complete (2026-06-06) |
+| Phase 2.5 | Deployed to live workspace; rebuilt on OpenClaw 2026.9.6 templates (TOOLS.md folded into AGENTS.md `## Tools`, IDENTITY.md added, USER.md directive model) | Complete (2026-09-25) |
 | Phase 3 | AgentSkill conversion | Queued |
 | Phase 4 | Routing, interop, Glee-fully relay testing | Queued |
 
