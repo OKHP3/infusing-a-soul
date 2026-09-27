@@ -1,8 +1,65 @@
 # ASUS Glee-fully Gateway Runbook
 
-Last verified: 2026-09-24
+Last verified: 2026-09-26
 
 This runbook records the verified operating path for Glee-fully on GJS-LAPTOP, the ASUS Windows system. It is an operational companion to the persona source files. It does not contain credentials or replace the external OpenClaw configuration.
+
+## Session Update (2026-09-26)
+
+This supersedes the sections below wherever they conflict.
+
+### Findings
+
+| # | Finding | Evidence | Status |
+|---|---|---|---|
+| 1 | Tailscale is healthy end to end. Mac Studio `overkill-hills-mac-studio` = `100.87.4.93`, GJS-LAPTOP = `100.66.228.62`. MagicDNS resolves the short name. | Live HTTP 200 from GJS-LAPTOP to `100.87.4.93` on 1234, 11434, 3000, 6333, 8888 | Working |
+| 2 | Tailscale was never the Companion's problem. The Companion talks to its own gateway on loopback (`127.0.0.1:18789`); only the gateway's *model provider* URLs reach the Mac, and those still pointed at the LAN address `10.10.1.201`, which works at home only. | Companion Config editor | Fixed by `ns-tailnet`, verified 2026-09-26 |
+| 3 | The Companion Config editor shows a **stale snapshot**, not the live file. It displayed the pre-2026-09-23-evening state (LFM2 primary, Ministral utility, no fallback). The CLI showed the live config was already correct: Mistral primary, Granite fallback and utility. This stale snapshot is also why every editor save fails. | `openclaw config get agents.defaults` via `ns-tailnet`, 2026-09-26 | Rule: trust the CLI, never the editor |
+| 4 | LM Studio renamed the LFM2 key to `liquid/lfm2-24b-a2b`; the stale `lfm2-24b-a2b-mlx` entry was still registered. Mistral Small 3.2 kept its key. | `GET 100.87.4.93:1234/v1/models` | LFM2 removed from the provider (it also fabricates tool results) |
+| 5 | The Companion Config editor cannot save: every save returns "config changed since last load; re-run config.get and retry", even after Refresh or a page reload (see row 3). Use the CLI helpers. | Five attempts, 2026-09-26 | Open (Companion bug) |
+| 6 | Companion "Local AI" (native llama-server on `127.0.0.1:18803`) is unavailable because the NVIDIA driver does not provide CUDA 13. A CUDA Toolkit is not needed, only a newer driver. | Local AI > See why | Needs an NVIDIA driver update (R580 branch or newer) |
+| 7 | Asked through Companion chat to report `config.get`, Mistral Small 3.2 returned an invented config (a `llama2-uncensored` provider, a made-up hash) with no tool card. Never accept config state from model prose. | Companion chat | Rule |
+| 8 | The Mac's own gateway (18789) is still loopback-only, over LAN and tailnet alike. | HTTP 000 on `100.87.4.93:18789` | Open (Mac-side) |
+| 9 | Larry's `gpt-oss:20b` "model not found (HTTP 404)" in OpenClaw Control is a separate issue: `gpt-oss:20b` exists in the Mac's Ollama, so the provider behind that picker entry points somewhere that does not have it. | Mac `ollama /api/tags` lists `gpt-oss:20b` | Open (check Larry's provider baseUrl) |
+
+### Verified result (2026-09-26, `ns-tailnet` then `ns-gpu-tune`)
+
+| Item | Before | After |
+|---|---|---|
+| `models.providers.lmstudio.baseUrl` | `http://10.10.1.201:1234/v1` (LAN only) | `http://100.87.4.93:1234/v1` (Tailscale) |
+| `lmstudio` models | LFM2 (dead key), Mistral, Nomic | Mistral, Nomic |
+| `memory.search.remote.baseUrl` | LAN address | Tailscale address (needs a gateway restart to apply) |
+| Primary / fallback / utility | Mistral / Granite / Granite (already correct) | unchanged |
+| Laptop Granite context | 16,384, 3.0 GB, 100% GPU | 32,768, 3.6 GB, 100% GPU |
+| Ollama service | 16K, keep-alive 5m | 32K, keep-alive 30m, one model loaded at a time |
+
+Leftover: `agents.defaults.models` still lists `ollama-local/ministral-3:8b` in its model allowlist. Harmless (the provider no longer offers it), remove when convenient.
+
+The stray `[30;1R` ParserError after the run is a terminal cursor-position report echoed into the prompt, not a script error.
+
+### Fix, from Windows PowerShell 7
+
+```powershell
+. "$env:USERPROFILE\OKH-Local\04_GitHub_Mirrors\infusing-a-soul\scripts\night-shift\night-shift.ps1"
+ns-tailnet     # Mac primary over Tailscale, Granite fallback + utility on the laptop GPU (backs up openclaw.json first)
+ns-gpu         # read-only: GPU seen in WSL, Ollama settings, and `ollama ps` (want 100% GPU)
+ns-gpu-tune    # optional: 32K context on the laptop, 30 min keep-alive; re-registers the matching window
+```
+
+`ns-tailnet` stops before touching anything if LM Studio is not reachable over the tailnet from inside the distro. After `ns-gpu-tune`, run `ns-gpu`: if `ollama ps` shows anything below `100% GPU`, back off with `ns-gpu-tune 24576` or `ns-gpu-tune 16384`.
+
+### Target routing
+
+| Role | Model | Host | Path |
+|---|---|---|---|
+| Primary | Mistral Small 3.2 24B | Mac Studio | `http://100.87.4.93:1234/v1` (Tailscale; works at home and away) |
+| Fallback | Granite 4.1 3B | Laptop RTX 3050 | `http://127.0.0.1:11434/v1` inside the gateway distro |
+| Utility (titles, progress notes) | Granite 4.1 3B | Laptop RTX 3050 | same |
+| Embeddings | nomic-embed-text v1.5 | Mac Studio | Tailscale address, only if `memory.search.remote.baseUrl` exists |
+
+### Why Ollama, not the Companion's Local AI, carries the laptop lane for now
+
+Both would compete for the same 6 GB of VRAM. Ollama is installed, has verified tool calls with Granite, and needs no driver change. Update the NVIDIA driver anyway (it is the only Local AI blocker), then decide whether Local AI replaces Ollama. Run one or the other, not both.
 
 ## Session Update (2026-09-23 evening to 2026-09-24)
 

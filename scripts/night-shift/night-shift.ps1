@@ -41,4 +41,18 @@ function ns-read([string]$Date, [string]$Num) {
 # Run the Night Shift right now (smoke tests, or when you want it before bed)
 function ns-run { Invoke-NSScript 'run-now.sh' }
 
-Write-Host "Night Shift helpers loaded: ns-add, ns-queue, ns-run, ns-brief, ns-read, ns-setup, ns-diag, ns-fix, ns-status" -ForegroundColor Cyan
+# Tailscale routing and laptop GPU (2026-09-26). See docs/asus-gateway-runbook.md, "Session Update (2026-09-26)".
+# ns-tailnet [MacTailnetIp] [LaptopCtx]  -> Mac primary over Tailscale, Granite fallback + utility on the laptop GPU
+function ns-tailnet([string]$Mac = '100.87.4.93', [int]$Ctx = 16384) { Invoke-NSScript 'tailnet-routing.sh' "$Mac $Ctx" }
+# ns-gpu -> read-only: GPU visible in WSL, Ollama settings, and whether the model runs 100% on GPU
+function ns-gpu { Invoke-NSScript 'gpu-check.sh' }
+# ns-gpu-tune [Ctx] -> raise the laptop context (root), then re-register the model with the matching window
+function ns-gpu-tune([int]$Ctx = 32768) {
+  Get-Content -Raw "$NS_Here\gpu-tune.sh" | wsl -d $NS_Distro -u root -- bash -c "tr -d '\r' > /tmp/gpu-tune.sh && bash /tmp/gpu-tune.sh $Ctx < /dev/null"
+  ns-tailnet '100.87.4.93' $Ctx
+}
+
+# ns-route [fix] -> find (and with 'fix', repoint) every file still using the Mac's LAN address
+function ns-route([string]$Mode = 'check') { Invoke-NSScript 'route-check.sh' $Mode }
+
+Write-Host "Night Shift helpers loaded: ns-add, ns-queue, ns-run, ns-brief, ns-read, ns-setup, ns-diag, ns-fix, ns-status, ns-tailnet, ns-gpu, ns-gpu-tune, ns-route" -ForegroundColor Cyan

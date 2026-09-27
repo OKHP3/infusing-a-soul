@@ -50,7 +50,8 @@ Out of scope unless explicitly requested:
 - `souls/_template/`: scaffold for new personas. Its README documents the intended copy-and-fill workflow.
 - `souls/glee-fully/`: authored Glee-fully persona package with deployable workspace files. Its references and skills directories are currently placeholders.
 - `souls/larry-the-lobster/`: authored Larry persona package with deployable workspace files and a research corpus.
-- `souls/askjamie/`: planned persona. Its workspace is not yet authored.
+- `souls/askjamie/`: correspondence-voice persona. Workspace files drafted 2026-09-27; not deployed.
+- `souls/murderbird/`: OKHP3 sentinel persona (editor and red team). Workspace files drafted 2026-09-27; not deployed.
 - `.agents/skills/`: active repository-local skills, references, evaluations, and validation helpers.
 - `skills/`: selected portable skill promotion mirrors. This is separate from the active `.agents/skills/` surface and requires provenance review before removal or replacement.
 - `CLAUDE.md`: short pointer to this root guide.
@@ -75,7 +76,8 @@ Persona-local `workspace/AGENTS.md` files apply only to their own persona direct
 
 - **Glee-fully**: As of 2026-09-24 the gateway is online under OpenClaw Windows Companion with a Mac Studio primary model and a laptop fallback, and the Night Shift smoke test passed. The live workspace still runs OpenClaw's default SOUL.md and AGENTS.md, and Discord is not connected. The referenced full source corpus is not present in this checkout, so corpus completeness is not verified here.
 - **Larry the Lobster**: Workspace files and research materials are present. The root README calls Larry planned, while the persona README records Phases 1 and 2 as complete. Treat deployment as unresolved until verified outside this repository.
-- **AskJamie**: Planned. The README says workspace files have not been written.
+- **AskJamie**: Workspace files drafted 2026-09-27 from askjamie.bot canon and repurposed as a private, draft-only email voice. Not deployed; mail connector and host are undecided.
+- **MurderBird**: Workspace files drafted 2026-09-27 from overkillhill.com canon. Not deployed.
 - **Phase 3 work**: Persona skill conversion is described as queued or next in the documentation. No persona skill directories contain authored skills in this checkout.
 - **Historical claims**: Phase notes describe prior external sessions and deployments. Preserve them as history unless current repository evidence updates them.
 
