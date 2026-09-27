@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>Infusing a Soul</title>
+  <rect width="32" height="32" rx="6" fill="#2a2320"/>
+  <path d="M13 6H6V26H13M19 6H26V26H19" fill="none" stroke="#f6f2ee" stroke-width="2"/>
+  <path d="M16 9L18 14L23 16L18 18L16 23L14 18L9 16L14 14Z" fill="#e6a03c"/>
+</svg>

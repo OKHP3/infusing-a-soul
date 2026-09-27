@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Infusing a Soul</title>
+  <desc id="desc">An amber spark inside an open architectural frame on an espresso background.</desc>
+  <rect width="512" height="512" rx="96" fill="#2a2320"/>
+  <path d="M216 96H96V416H216M296 96H416V416H296" fill="none" stroke="#f6f2ee" stroke-width="32"/>
+  <path d="M256 136L286 226L368 256L286 286L256 376L226 286L144 256L226 226Z" fill="#e6a03c"/>
+</svg>
