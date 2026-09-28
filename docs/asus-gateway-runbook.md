@@ -146,7 +146,7 @@ LM Studio at `10.10.1.201:1234` was reachable from GJS-LAPTOP. Companion chat re
 - `TOOLS.md`: written by the agent. Content matches the repo copy plus one stray trailing line `<<<END>>>` (1,988 bytes against 1,979 expected). Needs the last line removed.
 - `SOUL.md` and `AGENTS.md`: **not deployed**. OpenClaw defaults are still active, so Glee-fully's voice is not live.
 
-Deterministic deploy from a Windows PowerShell prompt, with the expected SHA-256 prefixes TOOLS `7eb85017e8f35280`, SOUL `71992e07c6115596`, AGENTS `5af5d3a1bfe8ac27`:
+Deterministic deploy from a Windows PowerShell prompt, with the expected SHA-256 prefixes TOOLS `c5e03b8b05426b49` (Tailscale endpoints, 2026-09-27), SOUL `71992e07c6115596`, AGENTS `5af5d3a1bfe8ac27`:
 
 ```powershell
 wsl -d OpenClawGateway -u openclaw -- bash -lc "cd ~/.openclaw/workspace && git -c user.name=okhp3 -c user.email=okhp3@localhost commit -qam 'snapshot before glee-fully soul' ; cp /mnt/c/Users/jamie/OKH-Local/04_GitHub_Mirrors/infusing-a-soul/souls/glee-fully/workspace/{SOUL,AGENTS,TOOLS}.md . && sha256sum SOUL.md AGENTS.md TOOLS.md"

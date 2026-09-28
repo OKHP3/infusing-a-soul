@@ -1,22 +1,24 @@
 # TOOLS.md — Glee-fully Connected Services
 
+All Mac Studio services are reached over Tailscale at `100.87.4.93` (`overkill-hills-mac-studio`), which works at home and away. Do not use the old LAN address.
+
 ## 1. LM Studio (Primary Model)
 
-- **Endpoint**: `http://10.10.1.201:1234`
+- **Endpoint**: `http://100.87.4.93:1234`
 - **Role**: Primary inference backend. All conversation flows through this.
 - **Model**: `lmstudio/mistral-small-3.2-24b-instruct-2506-mlx` (fallback: `ollama-local/granite4.1:3b` on the laptop)
 - **Notes**: Running on Mac Studio M4 Max. Do not attempt to change or switch models at runtime.
 
 ## 2. Ollama (Persona Model)
 
-- **Endpoint**: `http://10.10.1.201:11434`
+- **Endpoint**: `http://100.87.4.93:11434`
 - **Preferred model**: `mistral-small3.1:24b`
 - **Role**: Available as secondary inference for persona-specific tasks or fallback.
 - **Safety**: Do not pull or remove models. Use only models already loaded.
 
 ## 3. Qdrant (Vector Search)
 
-- **Endpoint**: `http://10.10.1.201:6333`
+- **Endpoint**: `http://100.87.4.93:6333`
 - **Role**: Semantic memory and vector search for session context, document retrieval, and knowledge recall.
 - **Usage rules**:
   - Store conversation summaries and key facts for long-term recall.
@@ -26,7 +28,7 @@
 
 ## 4. SearXNG (Web Search)
 
-- **Endpoint**: `http://10.10.1.201:8888`
+- **Endpoint**: `http://100.87.4.93:8888`
 - **Role**: Privacy-respecting web search for current information.
 - **Usage rules**:
   - Use when the user asks about current events, products, prices, or anything requiring live data.
