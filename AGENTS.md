@@ -130,3 +130,5 @@ For persona changes, re-read all changed files and check that workspace word bud
 ## Keeping this guide current
 
 Update this file when the repository gains a real runtime, manifest, test or build command, new persona package, deployment workflow, or a changed source-of-truth convention. Re-check claims against files and executable evidence. Keep historical decisions in the relevant dated document rather than presenting them as current operating requirements.
+
+## Imported Claude Cowork project instructions
