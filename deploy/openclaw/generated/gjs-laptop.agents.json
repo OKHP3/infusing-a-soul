@@ -1,0 +1,43 @@
+{
+  "agents": {
+    "entries": {
+      "main": {
+        "workspace": "~/.openclaw/workspace",
+        "skills": [
+          "okhp3-glee-fully-wwgd-review",
+          "okhp3-openclaw-capture-note",
+          "okhp3-openclaw-stack-status"
+        ]
+      },
+      "larry": {
+        "workspace": "~/.openclaw/workspace-larry",
+        "skills": [
+          "okhp3-openclaw-capture-note",
+          "okhp3-openclaw-stack-status",
+          "okhp3-openclaw-repo-pulse",
+          "okhp3-openclaw-skillz-sync",
+          "okhp3-openclaw-mermaid-lint",
+          "okhp3-openclaw-persona-route",
+          "okhp3-openclaw-research-packet",
+          "okhp3-openclaw-linkedin-drop",
+          "okhp3-source-backed-research",
+          "okhp3-evidence-standard",
+          "okhp3-session-handoff"
+        ]
+      },
+      "murderbird": {
+        "workspace": "~/.openclaw/workspace-murderbird",
+        "skills": [
+          "okhp3-murderbird-thesis-forge",
+          "okhp3-murderbird-argument-audit",
+          "okhp3-murderbird-hook-and-close",
+          "okhp3-evidence-standard",
+          "okhp3-source-backed-research",
+          "okhp3-linkedin-angles",
+          "okhp3-linkedin-post",
+          "okhp3-linkedin-voice"
+        ]
+      }
+    }
+  }
+}
