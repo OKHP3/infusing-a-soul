@@ -27,6 +27,19 @@ def version_key(value):
     return parts + ((int(match[2]),) if match[2] else ())
 
 
+def release_key(technology, value):
+    """Companion's stable calendar releases may include a numeric revision."""
+    if (technology.get("id") == "companion"
+            and technology.get("kind") == "github-release"
+            and technology.get("source") ==
+            "https://api.github.com/repos/openclaw/openclaw-windows-node/releases/latest"):
+        match = re.fullmatch(r"v?(\d{4}\.\d{1,2}\.\d{1,2})(?:-(\d+))?", value)
+        if not match:
+            raise ValueError(f"Not a supported stable Companion version: {value!r}")
+        return version_key(match[1]) + (int(match[2] or 0),)
+    return version_key(value)
+
+
 def get(url, method="GET", payload=None):
     if urlparse(url).scheme != "https":
         raise ValueError("Release and GitHub API sources must use HTTPS")
@@ -83,7 +96,7 @@ def latest_version(technology, fetch=get):
         version = max(candidates, key=version_key)
     else:
         raise ValueError(f"Unknown source parser: {kind}")
-    version_key(version)
+    release_key(technology, version)
     return re.sub(r"^(?:docker-)?v", "", version)
 
 
@@ -104,8 +117,8 @@ def audit(manifest, fetch=get):
         else:
             try:
                 row["latest"] = latest_version(technology, cached_fetch)
-                latest = version_key(row["latest"])
-                reviewed = version_key(technology["reviewed_version"])
+                latest = release_key(technology, row["latest"])
+                reviewed = release_key(technology, technology["reviewed_version"])
                 row["status"] = ("NEW_RELEASE" if latest > reviewed else
                                  "SOURCE_REGRESSION" if latest < reviewed else "UNCHANGED")
             except Exception as error:

@@ -27,6 +27,49 @@ def release(version="v1.10.0", **flags):
 
 
 class ReleaseTests(unittest.TestCase):
+    def companion(self, reviewed="2026.9.8"):
+        return dict(technology(reviewed=reviewed), id="companion",
+                    source="https://api.github.com/repos/openclaw/openclaw-windows-node/releases/latest")
+
+    def test_companion_numeric_revision_is_compared_and_preserved(self):
+        for version, reviewed, status in [
+                ("v2026.9.8-1", "2026.9.8", "NEW_RELEASE"),
+                ("v2026.9.8-10", "2026.9.8-2", "NEW_RELEASE"),
+                ("v2026.9.8-2", "2026.9.8-2", "UNCHANGED"),
+                ("v2026.9.8-1", "2026.9.8-2", "SOURCE_REGRESSION"),
+                ("v2026.9.8", "2026.9.8-1", "SOURCE_REGRESSION"),
+                ("v2026.9.9", "2026.9.8-10", "NEW_RELEASE")]:
+            with self.subTest(version=version, reviewed=reviewed):
+                rows = audit.audit({"technologies": [self.companion(reviewed)]},
+                                   lambda _: release(version))
+                self.assertEqual(rows[0]["latest"], version.removeprefix("v"))
+                self.assertEqual(rows[0]["status"], status)
+                self.assertEqual(audit.exit_code(rows),
+                                 {"NEW_RELEASE": 2, "UNCHANGED": 0, "SOURCE_REGRESSION": 1}[status])
+
+    def test_companion_revision_support_is_publisher_scoped(self):
+        rows = [technology(), dict(self.companion(), id="other"),
+                dict(self.companion(), source=technology()["source"]),
+                dict(self.companion(), kind="npm")]
+        for row in rows:
+            payload = release("v2026.9.8-1") if row["kind"] == "github-release" else json.dumps({"version": "2026.9.8-1"})
+            with self.subTest(row=row):
+                result = audit.audit({"technologies": [row]}, lambda _: payload)[0]
+                self.assertEqual(result["status"], "SOURCE_ERROR")
+        with self.assertRaises(ValueError):
+            audit.version_key("2026.9.8-1")
+
+    def test_companion_rejects_prerelease_flags_and_unsupported_suffixes(self):
+        for tag in ["v2026.9.8-rc.1", "v2026.9.8-1-beta", "v2026.9.8-1+dev",
+                    "v2026.9.8--1", "v2026.9.8-", "v1.2.3-1"]:
+            with self.subTest(tag=tag), self.assertRaises(ValueError):
+                audit.latest_version(self.companion(), lambda _: release(tag))
+        for flags in [{"draft": True, "prerelease": False},
+                      {"draft": False, "prerelease": True}, {}]:
+            payload = dict(tag_name="v2026.9.8-1", **flags)
+            with self.subTest(flags=flags), self.assertRaises(ValueError):
+                audit.latest_version(self.companion(), lambda _: json.dumps(payload))
+
     def test_numeric_comparison_and_supported_prefixes(self):
         self.assertGreater(audit.version_key("1.10.0"), audit.version_key("1.9.9"))
         self.assertEqual(audit.version_key("docker-v29.8.1"), (29, 8, 1))
