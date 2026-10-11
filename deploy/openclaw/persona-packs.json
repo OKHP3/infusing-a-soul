@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "description": "Source of truth for which skillz skills each OpenClaw persona may load. OpenClaw per-agent skill lists replace agents.defaults.skills instead of merging, so every generated list is complete on its own. Edit this file, then run build_allowlists.py.",
+  "packs": {
+    "baseline": {
+      "description": "Skills the agent already relies on today (bundled or workshop). Populate per host from `openclaw skills list --agent <id>` before applying, or those skills disappear when the allowlist is set.",
+      "skills": []
+    },
+    "ops-local": {
+      "description": "Local-first lab hygiene from the skillz openclaw family.",
+      "skills": [
+        "okhp3-openclaw-capture-note",
+        "okhp3-openclaw-stack-status",
+        "okhp3-openclaw-repo-pulse",
+        "okhp3-openclaw-skillz-sync",
+        "okhp3-openclaw-mermaid-lint"
+      ]
+    },
+    "larry-core": {
+      "description": "Default agent: dispatch, research, and handoff.",
+      "skills": [
+        "okhp3-openclaw-persona-route",
+        "okhp3-openclaw-research-packet",
+        "okhp3-openclaw-linkedin-drop",
+        "okhp3-source-backed-research",
+        "okhp3-evidence-standard",
+        "okhp3-session-handoff"
+      ]
+    },
+    "askjamie-core": {
+      "description": "Correspondence voice. Draft-only.",
+      "skills": [
+        "okhp3-askjamie-email-draft",
+        "okhp3-evidence-standard"
+      ]
+    },
+    "murderbird-core": {
+      "description": "Editorial red team, thesis building, short-post hooks, and the LinkedIn handoff chain.",
+      "skills": [
+        "okhp3-murderbird-thesis-forge",
+        "okhp3-murderbird-argument-audit",
+        "okhp3-murderbird-hook-and-close",
+        "okhp3-evidence-standard",
+        "okhp3-source-backed-research",
+        "okhp3-linkedin-angles",
+        "okhp3-linkedin-post",
+        "okhp3-linkedin-voice"
+      ]
+    },
+    "glee-core": {
+      "description": "WWGD reception check plus light capture.",
+      "skills": [
+        "okhp3-glee-fully-wwgd-review",
+        "okhp3-openclaw-capture-note",
+        "okhp3-openclaw-stack-status"
+      ]
+    }
+  },
+  "personas": {
+    "larry": {"packs": ["baseline", "ops-local", "larry-core"], "workspace_dir": "souls/larry-the-lobster/workspace"},
+    "askjamie": {"packs": ["askjamie-core"], "workspace_dir": "souls/askjamie/workspace"},
+    "murderbird": {"packs": ["murderbird-core"], "workspace_dir": "souls/murderbird/workspace"},
+    "glee-fully": {"packs": ["baseline", "glee-core"], "workspace_dir": "souls/glee-fully/workspace"}
+  },
+  "hosts": {
+    "mac-studio": {
+      "description": "Mac Studio M4 Max, native macOS OpenClaw.",
+      "agents": {
+        "larry": {"agent_id": "main", "role": "home", "workspace": "~/.openclaw/workspace"},
+        "murderbird": {"agent_id": "murderbird", "role": "home", "workspace": "~/.openclaw/workspace-murderbird"},
+        "glee-fully": {"agent_id": "glee-fully", "role": "standby", "workspace": "~/.openclaw/workspace-glee-fully"}
+      }
+    },
+    "gjs-laptop": {
+      "description": "ASUS Vivobook, OpenClaw Windows Companion with a managed WSL gateway.",
+      "agents": {
+        "glee-fully": {"agent_id": "main", "role": "home", "workspace": "~/.openclaw/workspace"},
+        "larry": {"agent_id": "larry", "role": "standby", "workspace": "~/.openclaw/workspace-larry"},
+        "murderbird": {"agent_id": "murderbird", "role": "standby", "workspace": "~/.openclaw/workspace-murderbird"}
+      }
+    }
+  },
+  "pending": {
+    "askjamie": "Home host undecided. It sees private mail, so it needs an owner-only host and a draft-only mail tool policy before any entry is generated."
+  }
+}
