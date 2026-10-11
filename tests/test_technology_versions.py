@@ -157,7 +157,14 @@ class ReleaseTests(unittest.TestCase):
                 self.assertTrue(row[key])
             self.assertTrue(row["source"].startswith("https://"))
             if row["kind"] != "manual":
-                audit.version_key(row["reviewed_version"])
+                audit.release_key(row, row["reviewed_version"])
+
+    def test_manifest_contract_accepts_reviewed_companion_revision(self):
+        manifest = json.loads((ROOT / "docs/technology-versions.json").read_text())
+        companion = next(row for row in manifest["technologies"] if row["id"] == "companion")
+        companion["reviewed_version"] = "2026.9.8-1"
+        with patch.object(Path, "read_text", return_value=json.dumps(manifest)):
+            self.test_manifest_contract()
 
 
 class IssueTests(unittest.TestCase):
