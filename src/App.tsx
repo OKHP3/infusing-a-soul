@@ -29,7 +29,7 @@ declare global {
   }
 }
 
-const PYODIDE_VERSION = "314.0.7";
+const PYODIDE_VERSION = "0.27.2";
 const PYODIDE_URL = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
 const PYODIDE_LOAD_TIMEOUT_MS = 15_000;
 
