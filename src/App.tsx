@@ -29,8 +29,9 @@ declare global {
   }
 }
 
-const PYODIDE_VERSION = "0.27.2";
+const PYODIDE_VERSION = "314.0.7";
 const PYODIDE_URL = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
+const PYODIDE_LOAD_TIMEOUT_MS = 15_000;
 
 const defaultCode = `# This runs entirely in your browser.
 signals = {
@@ -53,32 +54,101 @@ function App() {
   const [pyStatus, setPyStatus] = useState<"idle" | "loading" | "ready" | "running" | "error">("idle");
   const [copied, setCopied] = useState(false);
   const pyodide = useRef<Pyodide | null>(null);
+  const pyodideLoad = useRef<Promise<Pyodide> | null>(null);
+  const loadGeneration = useRef(0);
+  const scriptCleanup = useRef<(() => void) | null>(null);
+  const mounted = useRef(true);
 
   useEffect(() => {
+    mounted.current = true;
     const reveal = new IntersectionObserver(
       (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
       { threshold: 0.12 },
     );
     document.querySelectorAll(".reveal").forEach((el) => reveal.observe(el));
-    return () => reveal.disconnect();
+    return () => {
+      mounted.current = false;
+      loadGeneration.current += 1;
+      scriptCleanup.current?.();
+      reveal.disconnect();
+    };
   }, []);
 
-  async function loadPython() {
-    if (pyodide.current) return pyodide.current;
+  function loadPyodideScript() {
+    if (window.loadPyodide) return Promise.resolve();
+    return new Promise<void>((resolve, reject) => {
+      const script = document.createElement("script");
+      let settled = false;
+      const finish = (error?: Error) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        script.onload = null;
+        script.onerror = null;
+        scriptCleanup.current = null;
+        if (error) {
+          script.remove();
+          reject(error);
+        } else {
+          resolve();
+        }
+      };
+      const timer = window.setTimeout(
+        () => finish(new Error("Pyodide script loading timed out. Check your connection and retry.")),
+        PYODIDE_LOAD_TIMEOUT_MS,
+      );
+      scriptCleanup.current = () =>
+        finish(new Error("Pyodide script loading was cancelled. Retry when ready."));
+      script.src = `${PYODIDE_URL}pyodide.js`;
+      script.onload = () => finish();
+      script.onerror = () => finish(new Error("Could not load Pyodide. Check your connection and retry."));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function initializePython(generation: number) {
+    await loadPyodideScript();
+    if (!window.loadPyodide) throw new Error("Pyodide did not initialize. Please retry.");
+    const initialization = window.loadPyodide({ indexURL: PYODIDE_URL });
+    let timer = 0;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = window.setTimeout(
+        () => reject(new Error("Pyodide initialization timed out. Check your connection and retry.")),
+        PYODIDE_LOAD_TIMEOUT_MS,
+      );
+    });
+    try {
+      const runtime = await Promise.race([initialization, timeout]);
+      if (generation !== loadGeneration.current) {
+        throw new Error("Pyodide loading was cancelled. Retry when ready.");
+      }
+      pyodide.current = runtime;
+      return runtime;
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  function loadPython() {
+    if (pyodide.current) return Promise.resolve(pyodide.current);
+    if (pyodideLoad.current) return pyodideLoad.current;
+    const generation = ++loadGeneration.current;
     setPyStatus("loading");
     setOutput("Heating the Python runtime...");
-    if (!window.loadPyodide) {
-      await new Promise<void>((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = `${PYODIDE_URL}pyodide.js`;
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error("Could not load Pyodide"));
-        document.head.appendChild(script);
+    const pending = initializePython(generation)
+      .then((runtime) => {
+        if (mounted.current && generation === loadGeneration.current) setPyStatus("ready");
+        return runtime;
+      })
+      .catch((error: unknown) => {
+        if (generation === loadGeneration.current) loadGeneration.current += 1;
+        throw error;
+      })
+      .finally(() => {
+        if (pyodideLoad.current === pending) pyodideLoad.current = null;
       });
-    }
-    pyodide.current = await window.loadPyodide!({ indexURL: PYODIDE_URL });
-    setPyStatus("ready");
-    return pyodide.current;
+    pyodideLoad.current = pending;
+    return pending;
   }
 
   async function runPython() {
@@ -93,8 +163,10 @@ function App() {
       setOutput(lines.join("\n") || "Execution complete.");
       setPyStatus("ready");
     } catch (error) {
-      setOutput(error instanceof Error ? error.message : "Python execution failed.");
-      setPyStatus("error");
+      if (mounted.current) {
+        setOutput(error instanceof Error ? error.message : "Python execution failed.");
+        setPyStatus("error");
+      }
     }
   }
 
@@ -222,7 +294,7 @@ function App() {
             <div className="run-bar">
               <span className={`runtime-status ${pyStatus}`}><i /> {pyStatus === "idle" ? "Runtime cold" : pyStatus}</span>
               <button onClick={runPython} disabled={pyStatus === "loading" || pyStatus === "running"}>
-                <Play fill="currentColor" /> {pyStatus === "loading" ? "Loading Python..." : pyStatus === "running" ? "Running..." : "Run Python"}
+                <Play fill="currentColor" /> {pyStatus === "loading" ? "Loading Python..." : pyStatus === "running" ? "Running..." : pyStatus === "error" ? "Retry Python" : "Run Python"}
               </button>
             </div>
             <pre className="output"><span>OUTPUT</span>{output}</pre>
