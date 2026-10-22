@@ -123,13 +123,16 @@ py -3 -m unittest discover -s tests -v
 Field-guide source checks (the build does not deploy or publish the app):
 
 ```bash
+npm run check:lockfile-portability
 npm ci
+npm run test:lockfile
 npm run test:content
 npm run check
 npm run build
+npm run test:browser
 ```
 
-The [daily upstream audit](.github/workflows/check-technology-versions.yml) checks external release drift against the [version ledger](docs/technology-versions.json). Dependabot proposes GitHub Actions updates weekly. Neither upgrades the external hosts. Follow the [maintenance policy](docs/technology-inventory.md) for compatibility checks and host verification.
+The [daily upstream audit](.github/workflows/check-technology-versions.yml) checks external release drift against the [version ledger](docs/technology-versions.json). Dependabot proposes GitHub Actions and root npm dependency updates weekly. Neither upgrades the external hosts. Follow the [maintenance policy](docs/technology-inventory.md) for compatibility checks and host verification.
 
 ## Artwork and sharing
 

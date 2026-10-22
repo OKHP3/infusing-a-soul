@@ -54,7 +54,7 @@ Node LTS is the proposed contributor-tool maintenance channel. OpenClaw has its 
 | Technology | In-place version / evidence | Latest stable retrieved | Source |
 | --- | --- | --- | --- |
 | OpenClaw gateway | `2026.6.1` in August WSL record; replacement installation unknown | `2026.10.6` | [OpenClaw releases](https://github.com/openclaw/openclaw/releases/latest) |
-| OpenClaw Windows Hub / Companion | Installed per runbook; app version unknown | `2026.9.8-1` | [Windows Hub releases](https://github.com/openclaw/openclaw-windows-node/releases/latest) |
+| OpenClaw Windows Hub / Companion | Windows executable 2026.9.8-1, observed 2026-10-22; gateway separate | `2026.9.8-1` | [Windows Hub releases](https://github.com/openclaw/openclaw-windows-node/releases/latest) |
 | LM Studio | Mac service documented; app version unknown | `0.4.26` | [LM Studio download](https://lmstudio.ai/download) |
 | Ollama | Homebrew-managed Mac service; version unknown | `0.40.8` | [Ollama releases](https://github.com/ollama/ollama/releases/latest) |
 | Qdrant | Docker-hosted Mac service; version unknown | `1.20.0` | [Qdrant releases](https://github.com/qdrant/qdrant/releases/latest) |
