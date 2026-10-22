@@ -115,7 +115,7 @@ test("rejects missing metadata in a persona README", async (t) => {
   });
   await assert.rejects(
     generatePublicContent({ root }),
-    /souls\/persona-1\/README\.md: missing required/,
+    /souls[/\\]persona-1[/\\]README\.md: missing required/,
   );
 });
 

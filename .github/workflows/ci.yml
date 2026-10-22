@@ -16,6 +16,24 @@ permissions:
   contents: read
 
 jobs:
+  windows-contributor-tests:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          check-latest: true
+      - name: Check lockfile portability
+        run: npm run check:lockfile-portability
+      - name: Test contributor utilities on Windows
+        run: node --test tests/generate-public-content.test.mjs tests/lockfile-portability.test.mjs
+
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 35
