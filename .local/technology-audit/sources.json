@@ -1,0 +1,141 @@
+{
+  "openclaw": {
+    "source": "https://api.github.com/repos/openclaw/openclaw/releases/latest",
+    "tag_name": "v2026.9.5",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-09-19T01:55:23Z",
+    "html_url": "https://github.com/openclaw/openclaw/releases/tag/v2026.9.5"
+  },
+  "ollama": {
+    "source": "https://api.github.com/repos/ollama/ollama/releases/latest",
+    "tag_name": "v0.34.2",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-09-15T21:21:07Z",
+    "html_url": "https://github.com/ollama/ollama/releases/tag/v0.34.2"
+  },
+  "qdrant": {
+    "source": "https://api.github.com/repos/qdrant/qdrant/releases/latest",
+    "tag_name": "v1.19.1",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-09-04T07:59:14Z",
+    "html_url": "https://github.com/qdrant/qdrant/releases/tag/v1.19.1"
+  },
+  "open-webui": {
+    "source": "https://api.github.com/repos/open-webui/open-webui/releases/latest",
+    "tag_name": "v0.11.3",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-08-31T14:55:53Z",
+    "html_url": "https://github.com/open-webui/open-webui/releases/tag/v0.11.3"
+  },
+  "checkout": {
+    "source": "https://api.github.com/repos/actions/checkout/releases/latest",
+    "tag_name": "v7.0.1",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-07-20T15:10:05Z",
+    "html_url": "https://github.com/actions/checkout/releases/tag/v7.0.1"
+  },
+  "setup-python": {
+    "source": "https://api.github.com/repos/actions/setup-python/releases/latest",
+    "tag_name": "v7.0.0",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-07-20T03:15:01Z",
+    "html_url": "https://github.com/actions/setup-python/releases/tag/v7.0.0"
+  },
+  "upload-artifact": {
+    "source": "https://api.github.com/repos/actions/upload-artifact/releases/latest",
+    "tag_name": "v7.0.1",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-04-10T17:31:14Z",
+    "html_url": "https://github.com/actions/upload-artifact/releases/tag/v7.0.1"
+  },
+  "powershell": {
+    "source": "https://api.github.com/repos/PowerShell/PowerShell/releases/latest",
+    "tag_name": "v7.6.6",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-09-08T20:28:01Z",
+    "html_url": "https://github.com/PowerShell/PowerShell/releases/tag/v7.6.6"
+  },
+  "git-windows": {
+    "source": "https://api.github.com/repos/git-for-windows/git/releases/latest",
+    "tag_name": "v2.55.0.windows.5",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-08-20T16:21:31Z",
+    "html_url": "https://github.com/git-for-windows/git/releases/tag/v2.55.0.windows.5"
+  },
+  "wsl": {
+    "source": "https://api.github.com/repos/microsoft/WSL/releases/latest",
+    "tag_name": "2.7.14",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-09-11T22:09:23Z",
+    "html_url": "https://github.com/microsoft/WSL/releases/tag/2.7.14"
+  },
+  "docker-engine": {
+    "source": "https://api.github.com/repos/moby/moby/releases/latest",
+    "tag_name": "docker-v29.8.1",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-09-15T17:05:26Z",
+    "html_url": "https://github.com/moby/moby/releases/tag/docker-v29.8.1"
+  },
+  "homebrew": {
+    "source": "https://api.github.com/repos/Homebrew/brew/releases/latest",
+    "tag_name": "7.0.4",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-09-17T16:38:21Z",
+    "html_url": "https://github.com/Homebrew/brew/releases/tag/7.0.4"
+  },
+  "github-cli": {
+    "source": "https://api.github.com/repos/cli/cli/releases/latest",
+    "tag_name": "v2.101.0",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-09-15T14:24:34Z",
+    "html_url": "https://github.com/cli/cli/releases/tag/v2.101.0"
+  },
+  "create-pull-request": {
+    "source": "https://api.github.com/repos/peter-evans/create-pull-request/releases/latest",
+    "tag_name": "v8.1.1",
+    "prerelease": false,
+    "draft": false,
+    "published_at": "2026-04-10T16:27:57Z",
+    "html_url": "https://github.com/peter-evans/create-pull-request/releases/tag/v8.1.1"
+  },
+  "node": {
+    "source": "https://nodejs.org/dist/index.json",
+    "current": "v26.9.0",
+    "lts": "v24.21.0"
+  },
+  "npm": {
+    "source": "https://registry.npmjs.org/npm/latest",
+    "version": "12.0.2"
+  },
+  "python": {
+    "source": "https://www.python.org/downloads/",
+    "error": "'utf-8' codec can't decode byte 0x8b in position 1: invalid start byte"
+  },
+  "lm-studio": {
+    "source": "https://lmstudio.ai/download",
+    "versions": [
+      "0.4.24"
+    ],
+    "context": [
+      "Windows</p></div><p class=\"font-normal opacity-60\"> <!-- -->0.4.24</p></a></div><div class=\"flex w-full max-w-[560px] flex-col gap-4 md:w-[350px]\"><p class=\"opacity-5",
+      "erline text-foreground\" title=\"\" href=\"/changelog/lmstudio-v0.4.24\">v<!-- -->0.4.24</a></p><p class=\"opacity-50\">Available under the<!-- --> <a target=\"_blank\" rel=\"n",
+      "round\" title=\"\" href=\"/changelog/lmstudio-v0.4.24\">v<!-- -->0.4.24</a></p><p class=\"opacity-50\">Available under the<!-- --> <a target=\"_blank\" rel=\"noopener noreferre",
+      "Windows</p></div><p class=\"font-normal opacity-60\"> <!-- -->0.4.24</p></a></div><div class=\"flex w-full max-w-[560px] flex-col gap-4 md:w-[350px]\"><p class=\"opacity-5",
+      "erline text-foreground\" title=\"\" href=\"/changelog/lmstudio-v0.4.24\">v<!-- -->0.4.24</a></p><p class=\"opacity-50\">Available under the<!-- --> <a target=\"_blank\" rel=\"n",
+      "round\" title=\"\" href=\"/changelog/lmstudio-v0.4.24\">v<!-- -->0.4.24</a></p><p class=\"opacity-50\">Available under the<!-- --> <a target=\"_blank\" rel=\"noopener noreferre"
+    ]
+  }
+}
