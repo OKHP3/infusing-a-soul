@@ -1,0 +1,32 @@
+{
+  "name": "infusing-a-soul",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "generate:content": "node scripts/generate-public-content.mjs",
+    "predev": "npm run generate:content",
+    "dev": "vite --host 0.0.0.0 --port 5000",
+    "prebuild": "npm run generate:content",
+    "build": "tsc -b && vite build",
+    "precheck": "npm run generate:content",
+    "check": "tsc -b --pretty false",
+    "preview": "vite preview --host 0.0.0.0 --port 5000",
+    "test:browser": "playwright test"
+  },
+  "dependencies": {
+    "lucide-react": "^1.47.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
+  }
+}

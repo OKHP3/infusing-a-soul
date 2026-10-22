@@ -1,0 +1,30 @@
+{
+  "name": "Infusing a Soul | OverKill Hill P³",
+  "short_name": "Infusing a Soul",
+  "description": "A field guide to building persistent, private AI personas.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d1217",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "./icons/app-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/app-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
