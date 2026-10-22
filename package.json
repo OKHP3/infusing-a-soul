@@ -13,7 +13,10 @@
     "check": "tsc -b --pretty false",
     "preview": "vite preview --host 0.0.0.0 --port 5000",
     "test:browser": "playwright test",
-    "test:content": "node --test tests/generate-public-content.test.mjs"
+    "test:content": "node --test tests/generate-public-content.test.mjs",
+    "test:lockfile": "node --test tests/lockfile-portability.test.mjs",
+    "check:lockfile-portability": "node scripts/check-lockfile-portability.mjs --check",
+    "normalize:lockfile": "node scripts/check-lockfile-portability.mjs --normalize"
   },
   "dependencies": {
     "lucide-react": "^1.61.0",
