@@ -19,7 +19,7 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   use: {
-    baseURL: "http://127.0.0.1:5000/infusing-a-soul/",
+    baseURL: "http://127.0.0.1:5100/infusing-a-soul/",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -47,8 +47,8 @@ export default defineConfig({
     : [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
   outputDir: "test-results",
   webServer: {
-    command: "npm run preview",
-    url: "http://127.0.0.1:5000/infusing-a-soul/",
-    reuseExistingServer: !process.env.CI,
+    command: "npx vite preview --host 127.0.0.1 --port 5100 --strictPort",
+    url: "http://127.0.0.1:5100/infusing-a-soul/",
+    reuseExistingServer: false,
   },
 });

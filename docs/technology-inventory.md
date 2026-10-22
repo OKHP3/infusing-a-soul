@@ -23,7 +23,7 @@ The older inventory's claim that there was no root app was stale. The root app i
 | Replit Nix channel | `stable-25_05` |
 | Managed system packages | `xorg.libX11`, `xorg.libxcb`, `xorg.libXrandr`, `xorg.libXcomposite`, `xorg.libXcursor`, `xorg.libXdamage`, `xorg.libXi`, `xorg.libXext`, `xorg.libXfixes`, `xorg.libXrender`, `xorg.libXinerama`, `libxkbcommon`, `mesa`, `gtk3`, `pango`, `cairo`, `gdk-pixbuf`, `glib`, `alsa-lib`, `dbus`, `at-spi2-core`, `nss`, `nspr`, `fontconfig`, `freetype`, `cups`, `expat`, `libdrm` |
 
-The lockfile is the installed-source record; registry `latest` values are release research, not a recommendation to upgrade. Pyodide 314.0.7 is the current upstream stable release; the repository records 0.27.2 as its configured runtime. Keep that distinction until the loading, compatibility and three-browser acceptance work is complete.
+The lockfile is the installed-source record; registry `latest` values are release research, not a recommendation to upgrade. Pyodide 314.0.7 is both the verified upstream stable release and the configured browser runtime. Source configuration is separate from deployment; browser acceptance evidence is recorded by CI.
 
 ## Version inventory
 
@@ -33,7 +33,7 @@ The lockfile is the installed-source record; registry `latest` values are releas
 
 | Technology | In-place version / configuration | Latest stable retrieved | Source |
 | --- | --- | --- | --- |
-| Python | Windows `3.14.0rc1`; Replit `3.13.11`; CI selects stable `3.14` | `3.15.1` | [Python downloads](https://www.python.org/downloads/) |
+| Python | Windows `3.14.0rc1`; Replit `3.13.11`; CI selects stable `3.15` | `3.15.1` | [Python downloads](https://www.python.org/downloads/) |
 | JavaScript / Node.js | Windows `24.11.1`; Replit `24.13.0` | Current `26.12.1`; LTS `24.22.1` | [Node release index](https://nodejs.org/dist/index.json) |
 | npm | Windows and Replit `11.6.2`; root app has 11 direct dependencies and a v3 lockfile | `12.2.1` | [npm published latest](https://registry.npmjs.org/npm/latest) |
 | PowerShell | Windows `7.6.5` | `7.6.7` | [PowerShell releases](https://github.com/PowerShell/PowerShell/releases/latest) |
@@ -45,7 +45,7 @@ The lockfile is the installed-source record; registry `latest` values are releas
 | actions/upload-artifact | `7.0.2`, commit-pinned in CI workflows | `7.0.2` | [upload-artifact releases](https://github.com/actions/upload-artifact/releases/latest) |
 | GitHub / Actions / Bash runner tools | Hosted service, `ubuntu-latest`; exact runner image varies by run | Managed service, no single application version | [Runner images](https://github.com/actions/runner-images) |
 
-The Windows Python observation is a prerelease; Replit is on Python 3.13.11 and the workflow selects stable 3.14 patches independently. The checker uses GitHub's API directly and does not depend on the runner's GitHub CLI.
+The Windows Python observation is a prerelease; Replit is on Python 3.13.11 and the workflow selects stable 3.15 patches independently. The checker uses GitHub's API directly and does not depend on the runner's GitHub CLI.
 
 Node LTS is the proposed contributor-tool maintenance channel. OpenClaw has its own compatibility requirements: the retrieved install guide specifies Node `24.16+` or `26.1+`, recommending 26. The locally observed `24.11.1` falls below that current requirement, but the gateway's own Node version remains unknown. Validate the correct environment before upgrading. [OpenClaw installation requirements](https://docs.openclaw.ai/install)
 
@@ -70,7 +70,7 @@ Node LTS is the proposed contributor-tool maintenance channel. OpenClaw has its 
 | Discord API | Channel documented; integration's selected API version unknown | API `10` available | [Discord API versioning](https://docs.discord.com/developers/reference) |
 | ClickClack / terminal UI | Named in Larry's TOOLS file; exact product identity and version unknown | Unknown until product is identified | [Repository evidence](../souls/larry-the-lobster/workspace/TOOLS.md) |
 
-The Windows contributor also reported PowerShell `7.6.5`, GitHub CLI `2.96.0`, WSL `2.7.14.0`, Docker CLI `29.6.1`, Docker Desktop `4.81.0.232925`, and Windows 26H2 build `26300.9711` on 2026-10-22. These are host observations, not Replit or Mac versions. The Microsoft release-health page required authorization in this research session, so Windows channel/build values are recorded as owner-provided observations. Windows versions are servicing channels, not an instruction to install the numerically largest release.
+Read-only Windows contributor commands also observed PowerShell `7.6.5`, GitHub CLI `2.96.0`, WSL `2.7.14.0`, Docker CLI `29.6.1`, Docker Desktop `4.81.0.232925`, and Windows 26H2 build `26300.9711` on 2026-10-22. These are host observations, not Replit or Mac versions. The Replit Agent fetch of Microsoft release health required authorization; the audit coordinator independently read the official Microsoft table and local Windows registry on this date. Windows versions are servicing channels, not an instruction to install the numerically largest release.
 
 Read-only version requests to the documented Mac Qdrant, Ollama, and Open WebUI endpoints failed from this session. No running version is inferred from their historical records. No services, images, operating systems, or model files were changed.
 
@@ -93,7 +93,7 @@ ChatGPT, Claude, Codex, Notion, Replit, browsers, and editors are authoring or i
 
 ## Source ledger and uncertainty
 
-The links beside rows identify claim sources and publishers. Automated release values were retrieved by the fresh read-only audit on 2026-10-22; they describe upstream release research, not installed versions. Manual values use the linked official reference; where the source could not be independently read in this session, the owner-provided evidence is identified. The machine-readable ledger is [technology-versions.json](technology-versions.json), including retrieval time, baseline commit, installed/source evidence, parser, source, and follow-up.
+The links beside rows identify claim sources and publishers. Automated release values were retrieved by the fresh read-only audit on 2026-10-22; they describe upstream release research, not installed versions. Manual values use the linked official reference; where the Replit Agent could not read a source, the independent coordinator observation or remaining uncertainty is identified. The machine-readable ledger is [technology-versions.json](technology-versions.json), including retrieval time, baseline commit, installed/source evidence, parser, source, and follow-up.
 
 Local evidence: tracked manifests and executable imports under `.agents/skills/` and `skills/`; [workflow](../.github/workflows/check-technology-versions.yml); [readiness checker](../scripts/check-asus-gateway-readiness.ps1); [September runbook](asus-gateway-runbook.md); [August closeout](../context/threads/2026-08-02-asus-gateway-runtime-closeout.md); persona TOOLS files; direct version commands and Windows executable/registry metadata.
 
@@ -108,9 +108,9 @@ Local evidence: tracked manifests and executable imports under `.agents/skills/`
 
 ## Implemented update mechanism
 
-1. **Every day at 14:23 UTC**, the workflow tests the checker, checks 33 automated release tracks (including 11 direct npm dependencies and Pyodide), produces Markdown and JSON reports, and opens or refreshes one bot-owned tracking issue for new releases or source errors. Thirteen records remain manual/reference-only. Counts include separate Node Current and LTS tracks.
+1. **Every day at 14:23 UTC**, the workflow tests the checker, checks 36 automated release tracks (including 11 direct npm dependencies and Pyodide), produces Markdown and JSON reports, and opens or refreshes one bot-owned tracking issue for new releases or source errors. Thirteen records remain manual/reference-only. Counts include separate Node Current and LTS tracks.
 2. **Dependabot runs weekly** for GitHub Actions and root npm dependencies. It proposes updates, including major versions, through reviewable pull requests. There is no blanket auto-merge.
-3. **Python patch releases update automatically in CI** through `python-version: '3.14'`, `check-latest: true`, and `allow-prereleases: false`. Tests run using the newly resolved stable patch. New Python minor/major series are detected by the audit and require a reviewed workflow change.
+3. **Python patch releases update automatically in CI** through `python-version: '3.15'`, `check-latest: true`, and `allow-prereleases: false`. Tests run using the newly resolved stable patch. New Python minor/major series are detected by the audit and require a reviewed workflow change.
 4. **Keep the registry manifest synchronized with package-lock.** All 11 direct dependencies have npm registry tracks; the v3 lockfile records transitive versions as well. Dependabot changes remain PRs; run type, content, build, and browser checks before merging major or runtime updates.
 
 The checker distinguishes `NEW_RELEASE`, `UNCHANGED`, `SOURCE_REGRESSION`, `SOURCE_ERROR`, and `MANUAL_CHECK`. It rejects prerelease tags, treats an older upstream response as a source problem, retains partial results, and keeps source failures in the artifacts and job summary. Source failures fail the audit job. New releases create a notice and tracking issue without being treated as a broken source. Repeated identical findings do not rewrite the issue. A clean audit does not auto-close a maintenance issue; close it after documenting the disposition.
@@ -146,3 +146,15 @@ py -3 scripts/check-technology-versions.py
 On Linux, use `python` instead of `py -3`. Reports default to `.local/technology-audit/`, which is ignored by Git. Exit `0` means all automated sources match the reviewed baseline, `2` means new releases, and `1` means at least one source failed or regressed. Manual records and unknown installations remain unknown even with exit `0`. The scheduled workflow adds `--update-issue`; normal local runs never write to GitHub.
 
 **Next action:** merge the verified maintenance change to activate its schedule and Dependabot configuration, then collect the missing host versions before approving external upgrades.
+
+## Portability and publication gates
+
+The lockfile contains 110 resolved package records. All downloads must use HTTPS on registry.npmjs.org. Replit package upgrades can write its internal firewall address into resolved fields. Run npm run normalize:lockfile after such upgrades, inspect the diff, then run npm run check:lockfile-portability. The normalizer changes only that exact known prefix and refuses changes beyond resolved URLs; locked versions and integrity values are preserved. CI checks portability before npm ci and tests the guard. The 29 affected original entries were independently matched to their official public tarballs and integrity hashes during this audit.
+
+Node CI selects the latest stable patch of Node 24 with check-latest enabled. Audit CI now selects stable Python 3.15 patches; Windows and Replit interpreter observations above remain separate and were not upgraded by this change.
+
+Pages publication is manual only through deploy-pages.yml on main. It calls reusable app CI with prepare-pages enabled. That job must pass portability, dependency installation, type checking, content and lockfile tests, build, and Chromium/Firefox/WebKit before preparing the Pages artifact. The deployment job needs that successful verification and uses the artifact from the same workflow. Verification has read-only repository permission; Pages and identity-token writes are confined to deployment. No deployment was dispatched during this maintenance.
+
+Additional pinned Actions: actions/configure-pages 6.0.0, actions/upload-pages-artifact 5.0.0, and actions/deploy-pages 5.0.1. Official release endpoints are in the machine-readable ledger and weekly Actions Dependabot coverage applies.
+
+Windows Companion observation, 2026-10-22: the running executable reports ProductVersion 2026.9.8-1 (FileVersion 2026.9.8.0). Its uninstall entry still says 2026.9.3. The executable observation takes precedence for this app only; gateway version and health remain separate.

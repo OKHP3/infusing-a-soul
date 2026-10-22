@@ -73,7 +73,7 @@ Persona-local `workspace/AGENTS.md` files apply only to their own persona direct
 
 - The repository includes Markdown, JSON, and YAML content, repository-local skill assets and scripts, and a React/Vite static field guide. Python audit utilities use the standard library; the content generator and its tests use Node built-ins. See the technology inventory for host and upstream versions.
 - `.replit` declares the `nodejs-24` and `python-base-3.13` modules. The Vite development server uses port 5000 and allows `localhost` plus the `.replit.dev` host suffix.
-- The Pyodide release used by the browser workbench is 0.27.2. This is a Pyodide version, not a Python-language version. Python code executes in the browser; the browser downloads Pyodide runtime files from jsDelivr on first use. Do not describe the workbench as a security sandbox.
+- The Pyodide release used by the browser workbench is 314.0.7. This is a Pyodide version, not a Python-language version. Python code executes in the browser; the browser downloads Pyodide runtime files from jsDelivr on first use. Do not describe the workbench as a security sandbox.
 - The generator reads only the root `README.md` methodology metadata and `README.md` files for non-template persona directories. It copies only the validated public metadata fields into `src/generated/public-content.ts`; it must not read persona `workspace/`, `TOOLS.md`, or corpus content.
 - The documented runtime is OpenClaw, with workspace files loaded by an agent at startup and full references loaded on demand by skills.
 - The documented Glee-fully setup uses OpenClaw on GJS-LAPTOP and services hosted on a Mac Studio over the LAN. The September runbook describes Windows Companion with an internally managed WSL gateway; do not assume a purely native or historical standalone WSL installation without host evidence.
@@ -142,3 +142,5 @@ For persona changes, re-read all changed files and check that workspace word bud
 Update this file when the repository gains a real runtime, manifest, test or build command, new persona package, deployment workflow, or a changed source-of-truth convention. Re-check claims against files and executable evidence. Keep historical decisions in the relevant dated document rather than presenting them as current operating requirements.
 
 ## Imported Claude Cowork project instructions
+
+For browser changes, run all configured Playwright projects on a supported host. Replit Nix may not launch WebKit; keep that host limitation separate from actual browser assertions. The manual Pages workflow calls the same verified build and all three browser projects before preparing its deployment artifact. Do not dispatch publication during source maintenance. Supply an approved external artifact folder with --output-dir for local technology reports when owner file-placement rules apply.
