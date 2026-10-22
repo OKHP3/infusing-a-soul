@@ -9,7 +9,7 @@
 - **External runtime**: OpenClaw agents using the files under each persona's `workspace/` directory
 - **Current checkout status**: Documentation is active, but implementation and deployment status varies by persona
 
-The project is not an application package. This checkout contains Markdown guidance, persona configuration, research material, templates, corpus staging directories, local agent skills, Python and Node contributor utilities, a PowerShell readiness checker, and a scheduled technology audit. Seven private skill package manifests expose Node test commands without third-party dependencies. Skill tests and version-audit tests are present; there is no root application entry point or frontend build.
+This checkout contains Markdown guidance, persona configuration, research material, templates, corpus staging directories, local agent skills, Python and Node contributor utilities, a PowerShell readiness checker, a scheduled technology audit, and a source-controlled React/Vite field-guide application. The app has a browser-side Pyodide workbench; its source and build do not establish that it has been deployed.
 
 ## Mission and vision
 
@@ -23,6 +23,7 @@ The project is not an application package. This checkout contains Markdown guida
 In scope:
 
 - Persona research, source-corpus organization, distillation methodology, and deployable OpenClaw workspace files.
+- The React/Vite field-guide source, its public browser assets, and generated public metadata content.
 - Documentation under `docs/`, writing drafts under `article/`, and source-material staging under `corpus/`.
 - Persona packages under `souls/` and repository-local skills under `.agents/skills/`.
 
@@ -41,7 +42,11 @@ Out of scope unless explicitly requested:
 - `docs/technology-versions.json`: machine-readable upstream baselines and dated installed-version evidence.
 - `docs/story/`: numbered story documents (00 overview through 05 status) plus `project-page-brief.md`, the source for the overkillhill.com project page. Public-facing: keep LAN addresses, tokens, IDs, and Notion URLs out.
 - `scripts/night-shift/`: Night Shift overnight-queue helpers (PowerShell) and the gateway-side shell scripts they pipe into the Companion's WSL distro.
-- `tests/`: network-free regression tests for the technology audit.
+- `src/`: React field-guide application and generated public content.
+- `public/`: field-guide icons, manifest, preview, and social-preview assets.
+- `scripts/generate-public-content.mjs`: validates and generates public content from approved Markdown metadata.
+- `tests/`: network-free Python technology-audit tests and Node generator tests.
+- `package.json`, `package-lock.json`, and `vite.config.ts`: locked app dependencies and Vite development/build configuration.
 - `article/drafts/`: article or public-writing drafts. Currently empty except for `.gitkeep`.
 - `context/threads/`: redacted, standalone extracts from external AI threads. These preserve provenance and resume context but are not current runtime authority.
 - `corpus/vernacular/`: tone and voice source material. Currently empty except for `.gitkeep`.
@@ -66,7 +71,10 @@ Persona-local `workspace/AGENTS.md` files apply only to their own persona direct
 
 ## Technology and runtime model
 
-- The repository format is Markdown, JSON, and YAML plus repository-local skill assets and scripts. Python utilities use the standard library; Node skill utilities use built-in modules. See the technology inventory for host and upstream versions.
+- The repository includes Markdown, JSON, and YAML content, repository-local skill assets and scripts, and a React/Vite static field guide. Python audit utilities use the standard library; the content generator and its tests use Node built-ins. See the technology inventory for host and upstream versions.
+- `.replit` declares the `nodejs-24` and `python-base-3.13` modules. The Vite development server uses port 5000 and allows `localhost` plus the `.replit.dev` host suffix.
+- The Pyodide release used by the browser workbench is 0.27.2. This is a Pyodide version, not a Python-language version. Python code executes in the browser; the browser downloads Pyodide runtime files from jsDelivr on first use. Do not describe the workbench as a security sandbox.
+- The generator reads only the root `README.md` methodology metadata and `README.md` files for non-template persona directories. It copies only the validated public metadata fields into `src/generated/public-content.ts`; it must not read persona `workspace/`, `TOOLS.md`, or corpus content.
 - The documented runtime is OpenClaw, with workspace files loaded by an agent at startup and full references loaded on demand by skills.
 - The documented Glee-fully setup uses OpenClaw on GJS-LAPTOP and services hosted on a Mac Studio over the LAN. The September runbook describes Windows Companion with an internally managed WSL gateway; do not assume a purely native or historical standalone WSL installation without host evidence.
 - The documented Larry setup uses OpenClaw natively on a Mac Studio and local service endpoints.
@@ -92,11 +100,13 @@ Persona-local `workspace/AGENTS.md` files apply only to their own persona direct
 7. Do not use em dashes in generated content. Follow the OverKill Hill P3 brand rule that AutoCAD version references use R10 when relevant.
 8. Use lowercase, hyphen-separated names for new persona directories and Markdown artifacts unless an existing convention requires otherwise.
 9. Update documentation claims when repository evidence changes. Mark uncertain conclusions as inferred or unknown instead of filling gaps.
-10. Do not modify application code, dependencies, generated artifacts, secrets, CI behavior, or related repositories as part of ordinary documentation maintenance.
+10. Do not modify application code, dependencies, generated artifacts, secrets, CI behavior, or related repositories as part of ordinary documentation maintenance. App changes must stay within an explicitly requested scope.
 
 ## Development and validation
 
-There is no application build or deployment command. Run version-audit tests with `py -3 -m unittest discover -s tests -v` on Windows, or `python -m unittest discover -s tests -v` on Linux. Skill-local test commands remain scoped to their packages.
+For field-guide source changes, run `npm ci`, `npm run test:content`, `npm run check`, and `npm run build`. `npm run dev` starts the Vite development server on port 5000. These commands validate source and build output; they do not deploy or publish the application. No deployment is evidenced by a successful local build.
+
+Run version-audit tests with `py -3 -m unittest discover -s tests -v` on Windows, or `python -m unittest discover -s tests -v` on Linux. Skill-local test commands remain scoped to their packages.
 
 Run `py -3 scripts/check-technology-versions.py` for a read-only upstream audit. Reports go to ignored `.local/technology-audit/`. Exit codes are 0 for unchanged automated baselines, 2 for new releases, and 1 for source failures or regressions. Unknown installed versions and manual tracks remain unknown even when the command succeeds.
 

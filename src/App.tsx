@@ -210,8 +210,8 @@ function App() {
           <div className="workbench-intro reveal">
             <span className="eyebrow">PYTHON / IN-BROWSER LAB</span>
             <h2>Test the signal.</h2>
-            <p>This Python sandbox runs locally in your browser through WebAssembly. No server, no data transfer, no hidden runtime.</p>
-            <div className="runtime-note"><Cpu /><span><strong>Powered by Pyodide</strong>Python {PYODIDE_VERSION} runtime loads on first run.</span></div>
+            <p>Python code runs in your browser through Pyodide and WebAssembly, not on this site's server. On first run, the browser downloads Pyodide runtime files from jsDelivr. Use only code you trust.</p>
+            <div className="runtime-note"><Cpu /><span><strong>Powered by Pyodide</strong>Pyodide {PYODIDE_VERSION} runtime loads on first run.</span></div>
           </div>
           <div className="code-lab reveal">
             <div className="code-toolbar">

@@ -17,27 +17,27 @@ export type PublicSoul = Readonly<{
 export const stages: readonly MethodStage[] = [
   {
     "n": "01",
-    "title": "Assemble the corpus",
-    "body": "Gather the writing, vernacular, cultural references, and operating principles that make a voice recognizable.",
-    "tag": "source material"
+    "title": "Collect the voice",
+    "body": "Gather writing samples, tone guides, cultural references, recurring phrases, and operating habits that make a voice recognizable.",
+    "tag": "corpus"
   },
   {
     "n": "02",
-    "title": "Distill the signal",
-    "body": "Compress the defining patterns into a compact identity without flattening the person into a list of traits.",
-    "tag": "essence"
+    "title": "Distill the identity",
+    "body": "Compress defining patterns into a compact identity while preserving the source's recognizable signal.",
+    "tag": "distillation"
   },
   {
     "n": "03",
-    "title": "Separate the layers",
-    "body": "Keep personality, operating procedure, and connected tools independent so each can change without contaminating the others.",
+    "title": "Separate the jobs",
+    "body": "Keep identity, procedures, and service details distinct so each can change without contaminating the others.",
     "tag": "architecture"
   },
   {
     "n": "04",
-    "title": "Validate the voice",
-    "body": "Test in live conversation. Recognition is the standard: would someone close to the source know who is speaking?",
-    "tag": "proof"
+    "title": "Test the result",
+    "body": "Check recognizable voice and actual tool behavior separately. A convincing personality cannot stand in for evidence that the work happened.",
+    "tag": "validation"
   }
 ];
 
@@ -46,21 +46,28 @@ export const souls: readonly PublicSoul[] = [
     "name": "Glee-fully",
     "mark": "GF",
     "voice": "Warm, sassy, retro-PNW sparkle",
-    "status": "Gateway verified",
-    "state": "active"
+    "status": "Gateway and Night Shift recorded working 2026-09-24; authored voice pending live deployment",
+    "state": "authored"
   },
   {
     "name": "Larry the Lobster",
     "mark": "LL",
     "voice": "Technical, ROY-principled, ForgeDialect",
-    "status": "Workspace authored",
+    "status": "Deployment recorded 2026-09-25; live state not reverified",
     "state": "authored"
   },
   {
     "name": "AskJamie",
     "mark": "AJ",
     "voice": "Helpdesk clarity, peer-level directness",
-    "status": "Planned",
-    "state": "planned"
+    "status": "Drafted 2026-09-27; not deployed",
+    "state": "authored"
+  },
+  {
+    "name": "MurderBird",
+    "mark": "MB",
+    "voice": "Clipped, industrial editor and red team",
+    "status": "Drafted 2026-09-27; not deployed",
+    "state": "authored"
   }
 ];

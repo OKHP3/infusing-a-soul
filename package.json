@@ -12,7 +12,8 @@
     "precheck": "npm run generate:content",
     "check": "tsc -b --pretty false",
     "preview": "vite preview --host 0.0.0.0 --port 5000",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:content": "node --test tests/generate-public-content.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.47.0",

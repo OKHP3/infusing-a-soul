@@ -37,3 +37,14 @@ Soul sets tone and judgment. Capability comes from the skills, tools, model, and
 | IDENTITY.md | 173 | ~150 |
 | AGENTS.md | 561 | ~600 |
 | **Combined** | **1,177** | **<1,500** |
+
+<!-- public-meta
+{
+  "name": "MurderBird",
+  "mark": "MB",
+  "order": 4,
+  "state": "authored",
+  "status": "Drafted 2026-09-27; not deployed",
+  "voice": "Clipped, industrial editor and red team"
+}
+-->
