@@ -1,6 +1,6 @@
 # Artwork and sharing
 
-**Prepared September 27, 2026. Assets are present; website metadata and repository social-preview settings have not been applied.**
+**Prepared September 27, 2026. Public-page links and metadata rechecked October 22, 2026.**
 
 [Back to the README](../README.md#artwork-and-sharing)
 
@@ -8,7 +8,7 @@
 
 The [Chai Chasers README](https://github.com/OKHP3/glee-fully-chai-chasers/blob/main/README.md) opens with a recognizable image, a short promise, and a direct route into the game. Its voice stays personal while the later sections explain the current build, evidence, and limits. The [game's HTML](https://github.com/OKHP3/glee-fully-chai-chasers/blob/main/index.html) completes the presentation with a canonical URL, Open Graph and Twitter cards, favicon and Apple touch links, and a web app manifest.
 
-This project uses the same sequence: identity, invitation, experience, evidence, and deeper documentation. Its primary destination is the repository's build journal. A game launch button or an installable-app claim would misrepresent what this repository contains.
+This project uses the same sequence: identity, invitation, experience, evidence, and deeper documentation. Its primary destination is now the public build journal, with the repository story retained as source documentation. A game launch button or an installable-app claim would misrepresent what this repository contains.
 
 ## Visual system and provenance
 
@@ -42,13 +42,15 @@ Relative image links in the README display the committed artwork to readers who 
 
 GitHub exposes the separate upload under **Settings → Social preview → Edit**. Its guidance calls for a PNG, JPG, or GIF under 1 MB and recommends 1280 × 640 for best display. The supplied 1200 × 630 PNG exceeds the documented minimum dimensions; inspect GitHub's crop preview when uploading. Public sharing is subject to repository visibility, and GitHub documents restrictions on private-repository uploads. See [GitHub's social-preview instructions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview).
 
-Do not change this repository's visibility to enable a preview. Its private corpus and persona files are outside this artwork handoff.
+The repository is public as verified on October 22, 2026; this thread did not change its visibility. GitHub currently advertises its generated repository card rather than a custom uploaded image. That separate setting was not changed. Keep private source material outside public sharing assets.
 
 ## Website metadata handoff
 
-The proposed project route is recorded in the [public-page brief](story/project-page-brief.md). A direct request returned the site's 404 page on September 27, 2026. The README therefore links to the working repository journal instead.
+The route in the [public-page brief](story/project-page-brief.md) returned 404 on September 27, 2026. On October 22, the [public build journal](https://overkillhill.com/projects/infusing-a-soul/) returned HTTP 200 with the expected title and content, so the README now links there.
 
-The following is a **template for a future published page**, not active configuration. Replace `PUBLIC_PAGE_URL` with the actual HTTPS canonical page URL and `PUBLIC_ASSET_BASE` with the public HTTPS directory containing the approved artwork, without a trailing slash. Neither may point to a private GitHub raw-content URL. Integrate the values into the destination site's existing metadata system instead of adding duplicate tags.
+The delivered HTML contains the canonical project URL, Open Graph metadata, a Twitter large-image card, and image descriptions. Its [1200 × 630 social image](https://overkillhill.com/assets/img/og/infusing-a-soul-share-1200x630.png) is the published project artwork. Browser and Apple touch icons follow the host site's MurderBird identity. The project-specific pinned-tab mask remains available in this repository for a future independent host; it is not claimed as active on overkillhill.com.
+
+The following is a **reusable template for an independently hosted page**, not the source configuration of the existing public journal. Replace `PUBLIC_PAGE_URL` with the actual HTTPS canonical page URL and `PUBLIC_ASSET_BASE` with the public HTTPS directory containing the approved artwork, without a trailing slash. Neither may point to a private GitHub raw-content URL. Integrate the values into the destination site's existing metadata system instead of adding duplicate tags.
 
 For a page hosted under overkillhill.com, retain the host site's global favicon and touch-icon policy unless the owner chooses a project-specific override. The icon tags below are suitable for an independently branded project page.
 
@@ -95,4 +97,4 @@ Use the host page's normal character encoding and viewport tags. This kit suppli
 4. Inspect desktop and mobile sharing crops, the 16 px favicon, a saved touch bookmark, and Safari's pinned-tab mask on supported devices. Browser and social-platform behavior remains unverified until this is done on the published page.
 5. Update the README's primary destination only when the public page works. Record the publication date separately from asset creation.
 
-No related website, runtime host, repository visibility, or GitHub social-preview setting was changed by this README makeover.
+The public website was published separately. This thread verified its delivered page and assets and updated the README links; it did not change the website, runtime hosts, repository visibility, or GitHub social-preview setting.
