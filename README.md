@@ -2,9 +2,9 @@
 
 **Local AI is generic until you feed it your thinking.**
 
-[![Infusing a Soul: an amber spark inside layered architectural frames, representing human source material distilled into a distinct local AI identity.](assets/brand/social-preview.png)](docs/story/00-project-overview.md)
+[![Infusing a Soul: an amber spark inside layered architectural frames, representing human source material distilled into a distinct local AI identity.](assets/brand/social-preview.png)](https://overkillhill.com/projects/infusing-a-soul/)
 
-**[Read the build journal](docs/story/00-project-overview.md)** · [Meet the souls](#meet-the-souls) · [Build your own](#build-your-own) · [Artwork and sharing](#artwork-and-sharing)
+**[Read the build journal](https://overkillhill.com/projects/infusing-a-soul/)** · [Meet the souls](#meet-the-souls) · [Build your own](#build-your-own) · [Artwork and sharing](#artwork-and-sharing)
 
 Every local model ships as a stranger. It knows the internet. It does not know you.
 
@@ -25,7 +25,7 @@ It is persona architecture.
 | Create a persona of your own | [The workspace template](souls/_template/README.md) |
 | Find visual assets and the metadata handoff | [The sharing kit](docs/artwork-and-sharing.md) |
 
-The experience here is a build journal and a library of persona packages. Runtime interaction happens on separately configured OpenClaw hosts; this repository has no browser application or public agent endpoint. The proposed public project page is [documented in its brief](docs/story/project-page-brief.md) and was not available when checked on September 27, 2026.
+The experience here is a build journal and a library of persona packages. Runtime interaction happens on separately configured OpenClaw hosts; this repository has no browser application or public agent endpoint. The [public build journal](https://overkillhill.com/projects/infusing-a-soul/) was verified available on October 22, 2026. The [repository story](docs/story/00-project-overview.md) preserves the source chapters and their dated evidence.
 
 ## Meet the souls
 
@@ -133,7 +133,7 @@ A shared visual identity for the README, link cards, tabs, and saved bookmarks: 
 | Saved and pinned icons | [Apple touch icon](assets/brand/apple-touch-icon.png) · [Safari pinned-tab mask](assets/brand/safari-pinned-tab.svg) |
 | Metadata handoff | [Open Graph, social cards, canonical URL, and icon wiring](docs/artwork-and-sharing.md) |
 
-The README displays the artwork now. Browser metadata belongs in a published page's HTML, and GitHub repository social previews use a separate repository setting. The [sharing kit](docs/artwork-and-sharing.md) records those remaining publication steps; adding assets here does not activate them on a website.
+The README displays the artwork, and the [public build journal](https://overkillhill.com/projects/infusing-a-soul/) now serves its own canonical URL, Open Graph and Twitter cards, and the host site's browser and touch icons. GitHub repository social previews use a separate setting. The [sharing kit](docs/artwork-and-sharing.md) records the verified website state and reusable metadata template.
 
 ## Ownership and reuse
 
