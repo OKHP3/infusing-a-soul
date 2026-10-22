@@ -8,3 +8,11 @@ __pycache__/
 # Local research receipts and generated version reports
 .local/
 
+# Web app dependencies and generated output
+node_modules/
+dist/
+*.tsbuildinfo
+screenshots/
+playwright-report/
+test-results/
+

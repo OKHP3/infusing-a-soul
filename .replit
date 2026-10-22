@@ -1,0 +1,10 @@
+run = "npm run dev"
+modules = ["nodejs-24", "python-base-3.13"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[nix]
+channel = "stable-25_05"
+packages = ["xorg.libX11", "xorg.libxcb", "xorg.libXrandr", "xorg.libXcomposite", "xorg.libXcursor", "xorg.libXdamage", "xorg.libXi", "xorg.libXext", "xorg.libXfixes", "xorg.libXrender", "xorg.libXinerama", "libxkbcommon", "mesa", "gtk3", "pango", "cairo", "gdk-pixbuf", "glib", "alsa-lib", "dbus", "at-spi2-core", "nss", "nspr", "fontconfig", "freetype", "cups", "expat", "libdrm"]

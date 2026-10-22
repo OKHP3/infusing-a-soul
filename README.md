@@ -25,7 +25,7 @@ It is persona architecture.
 | Create a persona of your own | [The workspace template](souls/_template/README.md) |
 | Find visual assets and the metadata handoff | [The sharing kit](docs/artwork-and-sharing.md) |
 
-The experience here is a build journal and a library of persona packages. Runtime interaction happens on separately configured OpenClaw hosts; this repository has no browser application or public agent endpoint. The [public build journal](https://overkillhill.com/projects/infusing-a-soul/) was verified available on October 22, 2026. The [repository story](docs/story/00-project-overview.md) preserves the source chapters and their dated evidence.
+The experience here is a build journal, a library of persona packages, and a source-controlled React/Vite field guide with an in-browser Python workbench. The field-guide source is not evidence of a deployment or public agent endpoint. Runtime interaction with the personas happens on separately configured OpenClaw hosts. The [public build journal](https://overkillhill.com/projects/infusing-a-soul/) was verified available on October 22, 2026. The [repository story](docs/story/00-project-overview.md) preserves the source chapters and their dated evidence.
 
 ## Meet the souls
 
@@ -98,6 +98,9 @@ Copying a template creates files. Deployment, host permissions, model selection,
 | [`docs/story/`](docs/story/00-project-overview.md) | Build journey, model honesty, Night Shift, architecture, and dated status. |
 | [`docs/`](docs/) | Methodology, runbooks, technology inventory, and sharing guidance. |
 | [`assets/brand/`](assets/brand/) | Hero, social preview, project mark, and browser/bookmark icons. |
+| [`src/`](src/) and [`public/`](public/) | React/Vite field-guide source, browser assets, and generated content derived from approved README metadata. |
+| [`scripts/generate-public-content.mjs`](scripts/generate-public-content.mjs) | Validates and emits the field guide's public content from explicit metadata blocks only. |
+| [`tests/generate-public-content.test.mjs`](tests/generate-public-content.test.mjs) | Isolated Node tests for metadata validation and public-content boundaries. |
 | [`corpus/`](corpus/) | Source-material staging folders, currently placeholders. |
 | [`article/drafts/`](article/drafts/) | Staging area for articles and public-writing drafts. |
 | [`context/threads/`](context/threads/README.md) | Redacted historical handoffs with provenance. |
@@ -117,7 +120,19 @@ git diff --check
 py -3 -m unittest discover -s tests -v
 ```
 
-The [daily upstream audit](.github/workflows/check-technology-versions.yml) checks external release drift against the [version ledger](docs/technology-versions.json). Dependabot proposes GitHub Actions updates weekly. Neither upgrades the external hosts. Follow the [maintenance policy](docs/technology-inventory.md) for compatibility checks and host verification.
+Field-guide source checks (the build does not deploy or publish the app):
+
+```bash
+npm run check:lockfile-portability
+npm ci
+npm run test:lockfile
+npm run test:content
+npm run check
+npm run build
+npm run test:browser
+```
+
+The [daily upstream audit](.github/workflows/check-technology-versions.yml) checks external release drift against the [version ledger](docs/technology-versions.json). Dependabot proposes GitHub Actions and root npm dependency updates weekly. Neither upgrades the external hosts. Follow the [maintenance policy](docs/technology-inventory.md) for compatibility checks and host verification.
 
 ## Artwork and sharing
 
@@ -146,3 +161,30 @@ For repository work, begin with the [agent guide](AGENTS.md). Keep private corre
 Built by **Jamie Hill** · [OverKill&nbsp;Hill&nbsp;P³](https://overkillhill.com) · [Glee-fully Tools](https://glee-fully.tools) · [AskJamie](https://askjamie.bot)
 
 **The soul decides how it sounds. Everything else decides whether it works.**
+
+<!-- public-meta
+{
+  "methodology": [
+    {
+      "title": "Collect the voice",
+      "body": "Gather writing samples, tone guides, cultural references, recurring phrases, and operating habits that make a voice recognizable.",
+      "tag": "corpus"
+    },
+    {
+      "title": "Distill the identity",
+      "body": "Compress defining patterns into a compact identity while preserving the source's recognizable signal.",
+      "tag": "distillation"
+    },
+    {
+      "title": "Separate the jobs",
+      "body": "Keep identity, procedures, and service details distinct so each can change without contaminating the others.",
+      "tag": "architecture"
+    },
+    {
+      "title": "Test the result",
+      "body": "Check recognizable voice and actual tool behavior separately. A convincing personality cannot stand in for evidence that the work happened.",
+      "tag": "validation"
+    }
+  ]
+}
+-->

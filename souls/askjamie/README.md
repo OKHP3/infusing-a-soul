@@ -45,3 +45,14 @@ They may share voice skills. They never share tools, memory, or inbox access. Dr
 | IDENTITY.md | 157 | ~150 |
 | AGENTS.md | 569 | ~600 |
 | **Combined** | **1,115** | **<1,500** |
+
+<!-- public-meta
+{
+  "name": "AskJamie",
+  "mark": "AJ",
+  "order": 3,
+  "state": "authored",
+  "status": "Drafted 2026-09-27; not deployed",
+  "voice": "Helpdesk clarity, peer-level directness"
+}
+-->

@@ -98,3 +98,9 @@ Use the host page's normal character encoding and viewport tags. This kit suppli
 5. Update the README's primary destination only when the public page works. Record the publication date separately from asset creation.
 
 The public website was published separately. This thread verified its delivered page and assets and updated the README links; it did not change the website, runtime hosts, repository visibility, or GitHub social-preview setting.
+
+## Recovered field-guide assets
+
+The recovered React/Vite field guide has a separate forge/flame asset set under public/: social-preview.png and its editable SVG, replit-preview.jpg, avatar-512.png, icons/, and manifest.webmanifest. These files are source assets, separate from the README artwork under assets/brand/. Their presence does not establish a live deployment, offline support, or an account avatar change. The configured Pages canonical URL must be checked after any owner-authorized publication.
+
+The field guide initializes GA4 for initial and hash-navigation page views. Its public measurement ID lives in src/analytics.ts. It does not transmit editor text or Python output. The older Replit-only docs/brand-assets.md is superseded by this section; its platform guidance remains the same: uploading repository files does not change GitHub social-preview settings or account avatars.

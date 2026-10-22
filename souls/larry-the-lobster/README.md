@@ -42,3 +42,14 @@ Larry operates on the Mac Studio and is air-gapped from Glee-fully's persona, cr
 | AGENTS.md | 365 | ~400 | On target |
 | TOOLS.md | 267 | ~300 | On target |
 | **Combined** | **1,011** | **<1,500** | **32% under ceiling** |
+
+<!-- public-meta
+{
+  "name": "Larry the Lobster",
+  "mark": "LL",
+  "order": 2,
+  "state": "authored",
+  "status": "Deployment recorded 2026-09-25; live state not reverified",
+  "voice": "Technical, ROY-principled, ForgeDialect"
+}
+-->

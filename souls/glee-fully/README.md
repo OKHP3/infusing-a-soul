@@ -34,3 +34,14 @@ See [`docs/asus-gateway-runbook.md`](../../docs/asus-gateway-runbook.md) for the
 - Phase 1: Infrastructure (OpenClaw install, Discord bot, gateway config)
 - Phase 2: Soul writing (SOUL.md, AGENTS.md, TOOLS.md) -- this phase
 - Phase 3: AgentSkill conversion (tool-ettes to SKILL.md directories)
+
+<!-- public-meta
+{
+  "name": "Glee-fully",
+  "mark": "GF",
+  "order": 1,
+  "state": "authored",
+  "status": "Gateway and Night Shift recorded working 2026-09-24; authored voice pending live deployment",
+  "voice": "Warm, sassy, retro-PNW sparkle"
+}
+-->
