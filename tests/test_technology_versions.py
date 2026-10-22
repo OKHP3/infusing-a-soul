@@ -159,6 +159,24 @@ class ReleaseTests(unittest.TestCase):
             if row["kind"] != "manual":
                 audit.release_key(row, row["reviewed_version"])
 
+    def test_direct_npm_dependencies_are_tracked_at_locked_versions(self):
+        package = json.loads((ROOT / "package.json").read_text())
+        lock = json.loads((ROOT / "package-lock.json").read_text())
+        manifest = json.loads((ROOT / "docs/technology-versions.json").read_text())
+        direct = {**package.get("dependencies", {}), **package.get("devDependencies", {})}
+        tracked = {
+            row["name"].removeprefix("npm package: "): row
+            for row in manifest["technologies"]
+            if row["kind"] == "npm" and row["name"].startswith("npm package: ")
+        }
+        self.assertEqual(set(tracked), set(direct))
+        for name in direct:
+            with self.subTest(package=name):
+                locked = lock["packages"][f"node_modules/{name}"]["version"]
+                self.assertEqual(tracked[name]["recorded_version"], locked)
+                self.assertEqual(tracked[name]["source"],
+                                 f"https://registry.npmjs.org/{name.replace('@', '%40').replace('/', '%2F')}/latest")
+
     def test_manifest_contract_accepts_reviewed_companion_revision(self):
         manifest = json.loads((ROOT / "docs/technology-versions.json").read_text())
         companion = next(row for row in manifest["technologies"] if row["id"] == "companion")

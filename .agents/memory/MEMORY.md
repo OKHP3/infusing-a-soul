@@ -1,1 +1,0 @@
-- [Playwright browser hosts](playwright-hosts.md) — Replit's Nix environment may still lack WebKit's Ubuntu soname dependencies after browser installation.
