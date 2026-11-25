@@ -4,6 +4,75 @@ Last verified: 2026-09-26
 
 This runbook records the verified operating path for Glee-fully on GJS-LAPTOP, the ASUS Windows system. It is an operational companion to the persona source files. It does not contain credentials or replace the external OpenClaw configuration.
 
+## Updating the gateway (procedure added 2026-11-25)
+
+The Companion app and the gateway update on separate tracks. Companion updates itself. The gateway inside the `OpenClawGateway` WSL distro does not, so it drifts behind until someone updates it by hand.
+
+### Observed state, 2026-11-25
+
+| Component | Installed | Latest stable | How it was read |
+|---|---|---|---|
+| OpenClaw Companion (Windows app) | 2026.11.3 | v2026.11.3 | Account menu > Help & about > About OpenClaw |
+| OpenClaw gateway (core, in WSL) | 2026.9.4 | v2026.11.10 | Settings > Systems > gateway details > Version, and the account-menu gateway row (`Connected · v2026.9.4`) |
+
+Upstream versions come from the stable tags on `openclaw/openclaw-windows-node` and `openclaw/openclaw`. Two more things were seen in Systems on the same day: **Windows Node (GJS-LAPTOP)** shows *Needs re-approval*, and a pending **This PC wants to join** request is waiting. Both appeared after Companion moved to 2026.11.3. Approve them only after confirming they came from this PC.
+
+### How to read the version badges
+
+The `v…` next to the gateway in the Companion account menu is the **gateway** version (`WorkspaceShell_AccountGatewayVersionFormat`), not the app version. The app version is under Help & about.
+
+### Procedure
+
+Run it from Windows PowerShell 7 in the repo root. Start with the dry run.
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\update-openclaw-gateway.ps1 -DryRun
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\update-openclaw-gateway.ps1
+```
+
+`scripts/update-openclaw-gateway.ps1` records the version and `openclaw update status` before the update, tars `~/.openclaw` to `%USERPROFILE%\OKH-Local\openclaw-backups\`, runs `openclaw update` (with `--yes` when the build supports it), then records the version, update status and `agents.defaults` afterward. A full transcript goes to the gitignored `.local/gateway-updates/`. The upstream updater prepares the new release beside the running one and rolls back on its own if the candidate can't start.
+
+After the script finishes:
+
+1. In the Companion account menu, open the gateway row and click **Reconnect**. Confirm the badge shows the new version.
+2. Run `openclaw doctor` interactively in a gateway terminal and deal with anything new. The plaintext `gateway.auth.token` finding is still open.
+3. Send a test chat and confirm it gets an answer on the expected model, from the CLI's live config and not from the Config editor (rule 3 above).
+4. Update the `companion` entry in `docs/technology-versions.json` and add a separate gateway entry.
+
+The backup archive contains gateway credentials. It stays on this PC and is never committed or uploaded.
+
+### Dashboard update attempt, 2026-11-25 (failed safely)
+
+The Control UI has its own path: Settings > **Updates** > **Update now**, which runs `update.run`. On 2026-11-25 it was tried for 2026.9.4 to v2026.11.10, and it failed with reason code `global-install-failed` (record `5616e00a-eadf-4393-ad21-8e6d78c97a1e`). The candidate passed config validation, plugin resolution, migration rehearsal and the gateway canary. Only the final **global install swap** exited 1 ("inspect the installation and backups in `~/.openclaw/tools/node-v24.19.0/lib/node_modules` before restarting"). The service kept running 2026.9.4 and nothing was activated. The gateway file log (`/tmp/openclaw/openclaw-2026-11-25.log`) records only `update.run ... status=skipped`, so the real cause has to be read from a shell. Don't retry until it's diagnosed:
+
+```bash
+# inside the distro: wsl -d OpenClawGateway -u openclaw
+openclaw update status --json
+ls -la ~/.openclaw/tools/node-v24.19.0/lib/node_modules/ | head -40
+ls -ld ~/.openclaw/tools/node-v24.19.0/lib/node_modules/openclaw*
+openclaw triage    # upstream's local repair agent, if the cause isn't obvious
+```
+
+The same log shows the `lmstudio` provider at `100.87.4.93:1234` failing with `fetch failed`. While the Mac Studio's LM Studio is down, chat (and the built-in "Ask OpenClaw" diagnosis) falls back to the laptop model or stalls.
+
+### GitHub connections need `gh` inside the distro (2026-11-25)
+
+Dashboard > GitHub connections > **Continue with GitHub** failed with "GitHub CLI (`gh`) is required on the Gateway host." The gateway host is the `OpenClawGateway` WSL distro, so the Windows `gh` install doesn't count. Fix:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\install-gateway-gh.ps1
+```
+
+The script installs `gh` from GitHub's official apt repository as root and checks it from the `openclaw` user's PATH. It doesn't log in. Then go to Dashboard > GitHub connections > Connect GitHub > **For the system** > **Continue with GitHub**, enter the one-time code at github.com/login/device, and click **Verify**. The gateway writes its own private `gh` profile and doesn't touch any global `gh` login. Choose **For me** only when you want PR publishing under your personal account.
+
+Choose the credential deliberately. System GitHub hands its token to every agent `gh` command, and the Discord exposure items under "Security decisions" are still open. A fine-grained PAT ("Use a PAT instead") limited to the OKHP3 repos is the safer default.
+
+### Do not
+
+- Don't use **Remove Local Gateway** or **Set up or reconfigure Local Gateway** to "update". The first deletes the distro and the Ollama install inside it, and the second re-runs provider setup.
+- Don't ask the Companion chat agent to run the update. On 2026-11-25, Mistral Small 3.2 (with a Granite fallback partway through) printed tool calls as plain text instead of running them, and invented the command output, including a Windows `cmd` error that can't come from a Linux shell. Rule 7 above applies to command output as well as config.
+- Don't rely on Claude's computer use for this step. Terminal and PowerShell windows are click-only for it, so a person has to start the script.
+
 ## Session Update (2026-09-26)
 
 This supersedes the sections below wherever they conflict.
