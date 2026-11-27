@@ -53,6 +53,57 @@ ls -ld ~/.openclaw/tools/node-v24.19.0/lib/node_modules/openclaw*
 openclaw triage    # upstream's local repair agent, if the cause isn't obvious
 ```
 
+`scripts/diagnose-gateway-update.ps1` (read-only, output in `.local/gateway-updates/`) found the following the same day: the staged `npm` global install of 2026.11.10 finished with `exit 0`, although npm 11.17 reported `allow-scripts` skips for `@google/genai`, `esbuild` and `protobufjs`. `node_modules/openclaw` is intact (dated Sep 12), owned by `openclaw`, and not immutable. Disk is 1% used, no staged or backup copy was left behind, and the failure reports under `~/.openclaw/logs/support/` record `serviceRestartSafe: true`. The swap step's `stderrTail` is truncated in those reports, so the root cause is still unknown. Next step: run `scripts/update-openclaw-gateway.ps1`, which takes a backup and then runs the CLI updater with full stderr in the transcript, instead of retrying from the Dashboard.
+
+**Root cause found (13:10).** The full swap stderr, recovered from `/tmp/openclaw-update-run-handoff-*/handoff.log`, reads "Package rollback verification timed out / Package rollback verification failed: retained package tree changed". Nothing in the installed package changed after install (0 of 35,648 files are newer than install time), so the running gateway isn't touching the tree. This is upstream bug openclaw/openclaw#161257: the 2026.9.3/2026.9.4 updater gives its rollback fingerprint a fixed budget of about 30 s and fails the swap when a large tree takes longer to hash. Three attempts (11:21, 11:46, 12:59) all failed the same way, and retrying the 9.4 updater doesn't help. The fix is to bypass the old updater for this one hop:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\update-openclaw-gateway.ps1 -Manual -TargetVersion 2026.11.10
+```
+
+`-Manual` refuses to start while another update run is active, takes the full `~/.openclaw` backup, stops `openclaw-gateway.service`, runs `npm install -g openclaw@<version> --allow-scripts=openclaw` with the gateway's own Node (`~/.openclaw/tools/node`), runs `openclaw doctor --lint` (read-only, so it doesn't apply `--fix` to the Glee-fully workspace), starts the service, and checks `openclaw gateway status --deep`. Use the normal updater again next time, and watch the first run. Whether the fix (PR #161774) shipped in 2026.11.x is not yet confirmed.
+
+**Correction and outcome (13:27).** The "nothing changed" reading above was wrong. npm sets its own mtimes on package files, so a `-newer` check can't detect a partial swap. The three failed swaps had left the 2026.9.4 tree half-replaced (`dist/fs-safe-*.mjs` importing a missing `@openclaw/fs-safe/advanced`). The old process kept running from memory, and the damage only showed once the service was stopped, when every restart failed with `ERR_MODULE_NOT_FOUND` and systemd hit its start limit. That also means the 13:15 and 13:22 backups hold the broken package tree, although config, workspace and state in them are intact.
+
+Two more script bugs surfaced. Passing a command to `wsl.exe` as an argument lets it re-parse the line, which lost quoting, `$HOME`, PATH and the service start. PowerShell also appends `\r\n` to piped text. The scripts now feed commands on stdin with a trailing `#` line. The Companion distro doesn't mount `C:` at `/mnt/c` and isn't reachable at `\\wsl.localhost\OpenClawGateway`, so backups stay in `~/openclaw-backups/`.
+
+The recovery was `update-openclaw-gateway.ps1 -Manual -TargetVersion 2026.11.10`: `npm install -g` replaced 486 packages in 22 s, the CLI and service report **2026.11.10 (6ea542f)**, the service is `active`, and after a few minutes of offline SQLite maintenance at first boot the Dashboard came back on `127.0.0.1:18789`. GitHub: the shared agent account and `main` both show **Verified @OKHP3** via the fine-grained PAT `openclaw-gjs-laptop-system`, which expires 2027-02-23.
+
+**Doctor repair, 13:48.** The first interactive `openclaw doctor --fix` session ended abruptly at the "Chat history" step (cause unknown; the Companion was quit before the second run). The second run completed: agent DB schema 42/42, state 40/40, credential store created, `TOOLS.md` merged into `AGENTS.md` (original archived), the obsolete Control UI asset cache removed, the gateway restarted and verified. `openclaw gateway status --deep` reports **Gateway version 2026.11.10, Connectivity ok, Listening 127.0.0.1:18789**. Doctor couldn't rewrite the systemd unit because it would discard the operator-set `Environment.TMPDIR`, so the unit was preserved as-is.
+
+Follow-ups doctor raised, none applied yet:
+- `heartbeat-main` automation (`1a1a4e52-95c7-4c79-ae7c-f8e88ad4f44e`) loses unscoped `automations` and `sessions_yield` access at its next run. Re-grant with `openclaw automations edit <id> --tools ...` or recreate it.
+- Plaintext secrets in `openclaw.json`: `memory.search.remote.apiKey`, `gateway.auth.token`, `models.providers.lmstudio.apiKey`. Fix with `openclaw secrets configure`, then `openclaw secrets audit --check`, then `openclaw security audit --deep`.
+- No successful OpenClaw backup is recorded. Run `openclaw backup create`, then consider `openclaw backup enable --repository <dir>`.
+- "Remember across conversations" is on, but the Active Memory plugin is disabled. Enable `plugins.entries.active-memory` or turn the setting off.
+- Saved `maxTokens` caps match the old onboarding defaults (Mistral 8192, Granite 4096). Remove them to get the new defaults, or keep them deliberately.
+- The systemd unit is missing `Delegate=yes`/`DelegateSubgroup=gateway` (no cgroup isolation for agent exec). Host `TimeoutStopSec` for `user@1000` is 5 s, and doctor recommends 90 s or more.
+- Repo drift, resolved 2026-11-25: the live workspace still runs OpenClaw's **default** `SOUL.md`/`AGENTS.md`, so Glee-fully's persona has never been deployed there, only its tool notes. Doctor merged a **stale** `TOOLS.md` (old `lfm2-24b` model, stray `<<<END>>>`) into the live `AGENTS.md`. Following the Larry precedent, the repo's Glee-fully `TOOLS.md` is folded into `AGENTS.md` section 9 "Tools and Connected Services", `TOOLS.md` is now a retirement stub, and the deploy command above copies only `SOUL.md` and `AGENTS.md`. `scripts/apply-gateway-followups.ps1` replaces the stale block in the live `AGENTS.md` with section 9. Deploying the full Glee-fully persona is still a separate, pending decision.
+
+**Follow-ups closed, 2026-11-25, 14:41 to 15:32.** The process: `scripts/collect-gateway-followups.ps1` (read-only snapshot), then `scripts/apply-gateway-followups.ps1`, then `scripts/finish-gateway-followups.ps1`, then the secrets steps below by hand. Every item doctor raised is now resolved:
+
+| # | Item | Outcome |
+|---|---|---|
+| 1 | `heartbeat-main` tool scope | Left as is on purpose. 11.10 narrows it to its own automation, which is enough for a scratch-checklist heartbeat. Open separately: it has never delivered ("owner delivery unavailable, no route"). |
+| 2 | Plaintext secrets | `secrets audit --check`: **clean, plaintext=0, storeResidue=0**. Store entries `GATEWAY_AUTH_TOKEN`, `MEMORY_SEARCH_REMOTE_API_KEY`, `LMSTUDIO_API_KEY` (write-only, no allowed hosts). The gateway token value didn't change, so the Companion kept its connection. |
+| 3 | Backup | `openclaw backup create --verify` archive in `~/openclaw-backups/` (2026-11-25T14-47). |
+| 4 | Glee-fully tool notes | The live `AGENTS.md` carries repo section 9 (workspace git `6685aa2` and a follow-up commit); the stale `lfm2`/`<<<END>>>` block is removed. |
+| 5 | Node runtime | Service runs **Node 24.22.1** (`ExecStart` and `tools/node` both point to `node-v24.22.1`). `node-v24.19.0` is kept for rollback. |
+| 6 | Hardening and behavior | Active Memory enabled. `maxTokens` caps kept (Mistral 8192, Granite 4096). Unit now has `Delegate=yes`/`DelegateSubgroup=gateway`, and the redundant `TMPDIR` is removed. Host drop-in `/etc/systemd/system/user@1000.service.d/zz-openclaw-stop-timeout.conf` sets `TimeoutStopSec=330`. |
+
+Lessons for reuse:
+- `openclaw secrets configure` with source **store** only **links** a field to an existing entry. Create the entries first, piping each value from config so it never reaches the screen or history: `openclaw secrets store set NAME --kind secret --value-file -`. Store IDs must be `UPPER_SNAKE_CASE`. Don't pick **env** unless the service actually exports that variable.
+- A plan that touches the state database (`files=2`, e.g. a provider key that also has an auth profile) fails with "state database is busy" while the gateway runs. Quit the Companion, `systemctl --user stop openclaw-gateway.service`, apply, then start. `secrets reload` only works while the gateway is running.
+- The official installer (`install-cli.sh --version <v> --node-version 24.22.1`) installs Node beside the old runtime and refreshes the unit, but the refreshed unit kept the old Node binary. `openclaw gateway install --force --runtime-path ~/.openclaw/tools/node-v24.22.1/bin/node` finishes the switch.
+- In `bash -l -s` scripts fed from PowerShell, avoid `exit` (a false exit 1 triggered an unnecessary rollback) and end the piped text with a `#` line, because PowerShell appends `\r\n`.
+
+Status before the follow-ups (kept for history):
+- `openclaw doctor --fix` is required. The `main` agent database is at schema 19 and needs 42, and "Client credential migration is incomplete or stale" blocks channel inspection. `--fix` also merges `TOOLS.md` into `AGENTS.md` in the Glee-fully workspace.
+- The service runs Node 24.19.0, below the 24.22.1 security floor (eMudhra certificate incident, October 2026).
+- `openclaw update status` reports that the systemd unit drifts from installer values (StartLimitBurst 10, StartLimitIntervalSec 300, Delegate yes, DelegateSubgroup gateway).
+
+`gh` 2.105.0 was installed into the distro on 2026-11-25 with `scripts/install-gateway-gh.ps1`. The first run failed with "Unable to locate package gh" because a quiet `apt-get update` hid the cause. The script now prints apt output, shows `apt-cache policy gh`, and falls back to the official `.deb`.
+
 The same log shows the `lmstudio` provider at `100.87.4.93:1234` failing with `fetch failed`. While the Mac Studio's LM Studio is down, chat (and the built-in "Ask OpenClaw" diagnosis) falls back to the laptop model or stalls.
 
 ### GitHub connections need `gh` inside the distro (2026-11-25)
@@ -219,7 +270,7 @@ LM Studio at `10.10.1.201:1234` was reachable from GJS-LAPTOP. Companion chat re
 Deterministic deploy from a Windows PowerShell prompt, with the expected SHA-256 prefixes TOOLS `c5e03b8b05426b49` (Tailscale endpoints, 2026-09-27), SOUL `71992e07c6115596`, AGENTS `5af5d3a1bfe8ac27`:
 
 ```powershell
-wsl -d OpenClawGateway -u openclaw -- bash -lc "cd ~/.openclaw/workspace && git -c user.name=okhp3 -c user.email=okhp3@localhost commit -qam 'snapshot before glee-fully soul' ; cp /mnt/c/Users/jamie/OKH-Local/04_GitHub_Mirrors/infusing-a-soul/souls/glee-fully/workspace/{SOUL,AGENTS,TOOLS}.md . && sha256sum SOUL.md AGENTS.md TOOLS.md"
+wsl -d OpenClawGateway -u openclaw -- bash -lc "cd ~/.openclaw/workspace && git -c user.name=okhp3 -c user.email=okhp3@localhost commit -qam 'snapshot before glee-fully soul' ; cp /mnt/c/Users/jamie/OKH-Local/04_GitHub_Mirrors/infusing-a-soul/souls/glee-fully/workspace/{SOUL,AGENTS}.md . && sha256sum SOUL.md AGENTS.md"
 ```
 
 ### Still open, owner action required
